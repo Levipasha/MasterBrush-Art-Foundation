@@ -55,23 +55,17 @@ export default function Footer({ setActivePage }) {
               <li><a onClick={() => handlePageChange('shop')}>Shop</a></li>
               <li><a onClick={() => handlePageChange('blog')}>Blog</a></li>
               <li><a onClick={() => handlePageChange('contact')}>Contact</a></li>
-              <li><a href="http://localhost:5174/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--saffron-light)' }}>Admin Dashboard</a></li>
+              <li><a onClick={() => handlePageChange('login')}>Login / Register</a></li>
             </ul>
           </div>
 
           <div className="footer-col">
-            <h4>Events</h4>
+            <h4>Events & Community</h4>
             <ul className="footer-links">
               <li><a onClick={() => handlePageChange('events')}>Art Exhibition 2025</a></li>
               <li><a onClick={() => handlePageChange('events')}>Acrylic Workshop</a></li>
               <li><a onClick={() => handlePageChange('events')}>Art Retreat</a></li>
               <li><a onClick={() => handlePageChange('events')}>Art Competition</a></li>
-            </ul>
-            <h4 style={{ marginTop: '20px' }}>Support Us</h4>
-            <ul className="footer-links">
-              <li><a onClick={() => handlePageChange('support')}>Donate</a></li>
-              <li><a onClick={() => handlePageChange('support')}>Sponsor an Artist</a></li>
-              <li><a onClick={() => handlePageChange('support')}>Donate Materials</a></li>
             </ul>
           </div>
 

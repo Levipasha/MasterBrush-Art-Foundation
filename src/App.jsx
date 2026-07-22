@@ -8,7 +8,7 @@ import Members from './pages/Members';
 import Gallery from './pages/Gallery';
 import Events from './pages/Events';
 import Shop from './pages/Shop';
-import Support from './pages/Support';
+import Login from './pages/Login';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 
@@ -97,8 +97,8 @@ export default function App() {
             clearCart={clearCart}
           />
         );
-      case 'support':
-        return <Support setActivePage={setActivePage} triggerToast={triggerToast} />;
+      case 'login':
+        return <Login setActivePage={setActivePage} triggerToast={triggerToast} />;
       case 'blog':
         return <Blog setActivePage={setActivePage} triggerToast={triggerToast} />;
       case 'contact':

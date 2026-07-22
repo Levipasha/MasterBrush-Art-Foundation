@@ -23,7 +23,7 @@ export default function About({ setActivePage }) {
   useEffect(() => {
     const fetchAbout = async () => {
       try {
-        const res = await fetch('https://ngo-backend-production-b2ee.up.railway.app/api/about');
+        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/about');
         const json = await res.json();
         if (json.success && json.data) {
           setAboutInfo(json.data);

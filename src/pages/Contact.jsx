@@ -27,7 +27,7 @@ const WhatsappIcon = ({ size = 16 }) => (
   </svg>
 );
 
-const API_BASE = 'https://ngo-backend-production-b2ee.up.railway.app/api';
+const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
 
 export default function Contact({ setActivePage, triggerToast }) {
   const [contactConfig, setContactConfig] = useState({

@@ -10,7 +10,7 @@ export default function Gallery({ setActivePage }) {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const res = await fetch('https://ngo-backend-production-b2ee.up.railway.app/api/gallery');
+        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/gallery');
         const json = await res.json();
         if (json.success && json.data) {
           setDbItems(json.data);

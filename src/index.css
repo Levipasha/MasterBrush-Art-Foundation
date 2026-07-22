@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
 /* ============================================================
    MASTERBRUSH ART FOUNDATION — STYLING SYSTEM
    Design System: Deep Navy + Saffron Orange + Cream White
-   Typography: Playfair Display (headings) + Inter (body)
+   Typography: Oswald (whole site)
 ============================================================ */
 
 :root {
@@ -27,50 +29,60 @@
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-pill: 50px;
+  --font-main: 'Oswald', sans-serif;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Oswald', sans-serif; }
 
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Oswald', sans-serif;
   background: var(--cream);
   color: var(--text-dark);
-  line-height: 1.7;
+  line-height: 1.6;
   font-size: 16px;
+  font-optical-sizing: auto;
 }
 
 /* ---- TYPOGRAPHY ---- */
+h1, h2, h3, h4, h5, h6, input, button, select, textarea, p, span, a, li {
+  font-family: 'Oswald', sans-serif;
+}
+
 h1, h2, h3, h4 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Oswald', sans-serif;
   line-height: 1.25;
   color: var(--navy);
+  letter-spacing: 0.02em;
 }
 
 .display-hero {
   font-size: clamp(2.4rem, 5vw, 4rem);
   font-weight: 700;
   line-height: 1.1;
+  font-family: 'Oswald', sans-serif;
 }
 
 .display-section {
   font-size: clamp(1.8rem, 3.5vw, 2.8rem);
   font-weight: 700;
+  font-family: 'Oswald', sans-serif;
 }
 
 .script-text {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
   color: var(--saffron);
   font-size: 1.5em;
+  letter-spacing: 0.03em;
 }
 
 .eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--saffron);
   margin-bottom: 0.5rem;
@@ -154,22 +166,30 @@ p { color: var(--text-mid); }
 
 .navbar-pill-links a {
   text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-mid);
-  padding: 6px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 8px 16px;
   border-radius: var(--radius-pill);
-  transition: color 0.2s, background 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  display: inline-block;
 }
 
-.navbar-pill-links a:hover, .navbar-pill-links a.active {
-  color: var(--navy);
+.navbar-pill-links a:hover {
+  color: var(--saffron);
   background: var(--saffron-pale);
+  transform: translateY(-1px);
 }
 
 .navbar-pill-links a.active {
-  color: var(--saffron);
+  color: #FFFFFF !important;
+  background: var(--saffron) !important;
+  font-size: 1.02rem;
+  font-weight: 700;
+  padding: 9px 22px;
+  box-shadow: 0 4px 16px rgba(196, 36, 36, 0.4);
+  transform: scale(1.05);
 }
 
 .navbar-pill-cart {
@@ -312,9 +332,13 @@ p { color: var(--text-mid); }
 
 /* Hero */
 .hero {
-  padding: 60px 0 80px;
+  padding: 60px 0 220px;
+  min-height: 720px;
+  display: flex;
+  align-items: flex-start;
   overflow: hidden;
   position: relative;
+  background: linear-gradient(135deg, rgba(253, 250, 246, 0.25), rgba(248, 240, 232, 0.2)), url('/cta-bg.jpg') center/cover no-repeat;
 }
 
 .hero-grid {

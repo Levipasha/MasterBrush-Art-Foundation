@@ -40,7 +40,6 @@ export default function Navbar({ activePage, setActivePage, cartCount, toggleCar
     { id: 'gallery', label: 'Gallery' },
     { id: 'events', label: 'Events' },
     { id: 'shop', label: 'Shop' },
-    { id: 'support', label: 'Donate' },
     { id: 'blog', label: 'Blog' },
     { id: 'contact', label: 'Contact' },
   ];
@@ -89,14 +88,14 @@ export default function Navbar({ activePage, setActivePage, cartCount, toggleCar
           {/* Right side CTA */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 
-            {/* Donate Button */}
+            {/* Login / Register Button */}
             <motion.a 
               className="btn btn-donate hidden-mobile" 
-              onClick={() => handlePageChange('support')}
+              onClick={() => handlePageChange('login')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Donate
+              Login / Register
             </motion.a>
 
             {/* Mobile menu toggle button */}

@@ -1,113 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, Sparkles, Heart, Award, Activity, Image, PenTool, Trees, Hand, Coins, Gift } from 'lucide-react';
-
-const galleryItems = [
-  {
-    id: 'g1',
-    category: 'Student Works',
-    title: 'Peacock — Acrylic',
-    element: (
-      <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="200" height="200" fill="#E8F5E9"/>
-        <circle cx="100" cy="100" r="30" fill="#1A7A4A"/>
-        <ellipse cx="100" cy="90" rx="20" ry="30" fill="#2BAF8A"/>
-        <ellipse cx="60" cy="70" rx="12" ry="30" fill="#3498DB" opacity="0.7" transform="rotate(-30 60 70)"/>
-        <ellipse cx="80" cy="55" rx="10" ry="28" fill="#7B68EE" opacity="0.7" transform="rotate(-15 80 55)"/>
-        <ellipse cx="100" cy="50" rx="10" ry="30" fill="#2BAF8A" opacity="0.8"/>
-        <ellipse cx="120" cy="55" rx="10" ry="28" fill="#3498DB" opacity="0.7" transform="rotate(15 120 55)"/>
-        <ellipse cx="140" cy="70" rx="12" ry="30" fill="#7B68EE" opacity="0.7" transform="rotate(30 140 70)"/>
-        <circle cx="100" cy="88" r="8" fill="#FFD700"/>
-        <circle cx="95" cy="72" r="5" fill="#3498DB"/>
-        <circle cx="100" cy="68" r="5" fill="#2BAF8A"/>
-        <circle cx="105" cy="72" r="5" fill="#7B68EE"/>
-      </svg>
-    )
-  },
-  {
-    id: 'g2',
-    category: 'Acrylic Paintings',
-    title: 'Sunset Serenity — Acrylic',
-    element: (
-      <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="sunsetG_home" cx="50%" cy="30%">
-            <stop offset="0%" stop-color="#FF6B35"/>
-            <stop offset="60%" stop-color="#FF8C42"/>
-            <stop offset="100%" stop-color="#1A3A6B"/>
-          </radialGradient>
-        </defs>
-        <rect width="200" height="200" fill="url(#sunsetG_home)"/>
-        <circle cx="100" cy="80" r="28" fill="#FFE066" opacity="0.9"/>
-        <rect x="0" y="140" width="200" height="60" fill="#0D2137" opacity="0.9"/>
-        <ellipse cx="100" cy="155" rx="25" ry="10" fill="#FFD700" opacity="0.3"/>
-        <rect x="55" y="120" width="8" height="20" fill="#1A2A3A"/>
-        <polygon points="55,122 45,140 65,140" fill="#F5DEB3" opacity="0.7"/>
-        <rect x="137" y="125" width="8" height="15" fill="#1A2A3A"/>
-        <polygon points="137,127 128,140 146,140" fill="#F5DEB3" opacity="0.6"/>
-      </svg>
-    )
-  },
-  {
-    id: 'g3',
-    category: 'Student Works',
-    title: 'Portrait — Student Work',
-    element: (
-      <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="200" height="200" fill="#F8F8F8"/>
-        <circle cx="100" cy="80" r="44" fill="#F4C090"/>
-        <ellipse cx="100" cy="62" rx="44" ry="28" fill="#2C1810"/>
-        <circle cx="88" cy="82" r="6" fill="#3D2810"/>
-        <circle cx="112" cy="82" r="6" fill="#3D2810"/>
-        <circle cx="89" cy="81" r="2" fill="white"/>
-        <circle cx="113" cy="81" r="2" fill="white"/>
-        <path d="M90 95 Q100 103 110 95" stroke="#C0784A" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="100" cy="88" rx="8" ry="5" fill="#E8A07A" opacity="0.4"/>
-        <rect x="72" y="122" width="56" height="60" fill="#E0E0E0" rx="6"/>
-        <rect x="78" y="128" width="44" height="52" fill="#BDBDBD" rx="4"/>
-      </svg>
-    )
-  },
-  {
-    id: 'g4',
-    category: 'Pebble Art',
-    title: 'Love Birds — Pebble Art',
-    element: (
-      <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="200" height="200" fill="#F5F0E8"/>
-        <rect x="20" y="120" width="160" height="8" fill="#5D4037" rx="4"/>
-        <ellipse cx="55" cy="110" rx="14" ry="18" fill="#E25B8B"/>
-        <circle cx="55" cy="96" r="10" fill="#F48FB1"/>
-        <ellipse cx="85" cy="108" rx="13" ry="17" fill="#FF7043"/>
-        <circle cx="85" cy="94" r="9" fill="#FFAB91"/>
-        <ellipse cx="113" cy="106" rx="14" ry="18" fill="#7B68EE"/>
-        <circle cx="113" cy="92" r="10" fill="#B39DDB"/>
-        <ellipse cx="142" cy="108" rx="13" ry="17" fill="#2BAF8A"/>
-        <circle cx="142" cy="94" r="9" fill="#80CBC4"/>
-        <text x="50" y="112" font-size="8" fill="white" text-anchor="middle">♥</text>
-        <text x="85" y="110" font-size="8" fill="white" text-anchor="middle">♥</text>
-      </svg>
-    )
-  },
-  {
-    id: 'g5',
-    category: 'Exhibitions',
-    title: 'Artist at Work — Exhibition',
-    element: (
-      <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="200" height="200" fill="#E8F4F8"/>
-        <circle cx="90" cy="75" r="26" fill="#F4C090"/>
-        <ellipse cx="90" cy="60" rx="26" ry="18" fill="#2C1810"/>
-        <rect x="68" y="98" width="44" height="55" fill="#27AE60" rx="6"/>
-        <rect x="72" y="103" width="36" height="48" fill="#1A6B3A" opacity="0.8" rx="4"/>
-        <rect x="120" y="60" width="55" height="70" fill="#FFF8F0" stroke="#C8956C" stroke-width="2" rx="3"/>
-        <polygon points="120,120 140,75 160,120" fill="#7B68EE" opacity="0.7"/>
-        <polygon points="135,120 155,82 175,120" fill="#B39DDB" opacity="0.7"/>
-        <rect x="120" y="118" width="55" height="12" fill="#27AE60" opacity="0.5"/>
-        <rect x="110" y="95" width="3" height="30" fill="#8B4513" transform="rotate(-20 110 95)"/>
-      </svg>
-    )
-  }
-];
+import { Palette, Sparkles, Heart, Award, Activity, Image, PenTool, Trees, Hand, Coins, Gift, User, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { CountingNumber } from '../components/ui/counting-number';
 
 export default function Home({ setActivePage }) {
   const [homeConfig, setHomeConfig] = useState({
@@ -121,25 +15,44 @@ export default function Home({ setActivePage }) {
   const [galleryList, setGalleryList] = useState([]);
 
 
-  const displayItems = galleryList.length > 0 
-    ? galleryList.map(item => ({
-        id: item._id,
-        category: item.category,
-        title: item.title,
-        element: <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      }))
-    : galleryItems;
+  const displayItems = galleryList.map(item => ({
+    id: item._id,
+    category: item.category,
+    title: item.title,
+    element: <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  }));
 
   const filteredItems = displayItems.filter(item => 
     activeTab === 'All' || item.category === activeTab
   );
 
-  const showcaseItems = filteredItems.slice(0, 6);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const totalSlides = filteredItems.length;
+
+  useEffect(() => {
+    if (totalSlides === 0 || isPaused) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [totalSlides, isPaused]);
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  };
+
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
+
+  const [eventsList, setEventsList] = useState([]);
 
   useEffect(() => {
     const fetchHome = async () => {
       try {
-        const res = await fetch('https://ngo-backend-production-b2ee.up.railway.app/api/home');
+        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/home');
         const json = await res.json();
         if (json.success && json.data) {
           setHomeConfig(json.data);
@@ -150,7 +63,7 @@ export default function Home({ setActivePage }) {
     };
     const fetchGallery = async () => {
       try {
-        const res = await fetch('https://ngo-backend-production-b2ee.up.railway.app/api/gallery');
+        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/gallery');
         const json = await res.json();
         if (json.success && json.data) {
           setGalleryList(json.data);
@@ -159,8 +72,20 @@ export default function Home({ setActivePage }) {
         console.error("Error fetching homepage gallery:", err);
       }
     };
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/events');
+        const json = await res.json();
+        if (json.success && json.data) {
+          setEventsList(json.data);
+        }
+      } catch (err) {
+        console.error("Error fetching homepage events:", err);
+      }
+    };
     fetchHome();
     fetchGallery();
+    fetchEvents();
   }, []);
 
 
@@ -175,42 +100,14 @@ export default function Home({ setActivePage }) {
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
-          <div className="hero-grid">
-            <div className="hero-content">
-              <div className="hero-tagline">
-                {homeConfig.heroTagline}
-              </div>
-              <h1 className="display-hero hero-title">
-                {homeConfig.heroTitle}
-              </h1>
-              <span className="hero-script">Bringing Art to Every Heart ♡</span>
-              <p className="hero-desc">
-                Empowering creativity, nurturing talent and building an inclusive art community where imagination has no limits.
-              </p>
-              <div className="hero-buttons">
-                <a className="btn btn-outline" onClick={() => handlePageChange('gallery')}>Explore Gallery</a>
-                <a className="btn btn-accent" onClick={() => handlePageChange('support')}>Support Our Mission ♥</a>
-              </div>
-            </div>
-
-            <div className="hero-visual">
-              <div className="hero-art-bg"></div>
-              <div className="hero-art-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', padding: '24px' }}>
-                <img 
-                  src={homeConfig.heroLogo} 
-                  alt="MasterBrush Art Foundation Logo" 
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', maxHeight: '320px' }} 
-                />
-              </div>
-              <div className="hero-badge hero-badge-tl" style={{ display: 'flex', alignItems: 'center' }}>
-                <Heart size={14} style={{ marginRight: '6px', color: 'var(--saffron)' }} />
-                Creative Inclusion
-              </div>
-              <div className="hero-badge hero-badge-br" style={{ display: 'flex', alignItems: 'center' }}>
-                <Sparkles size={14} style={{ marginRight: '6px', color: 'var(--pink)' }} />
-                Expression & Healing
-              </div>
-            </div>
+          <div className="hero-content" style={{ maxWidth: '780px', margin: '0 auto', textAlign: 'center' }}>
+            <h1 className="display-hero hero-title">
+              {homeConfig.heroTitle}
+            </h1>
+            <span className="hero-script">Bringing Art to Every Heart ♡</span>
+            <p className="hero-desc" style={{ margin: '0 auto', maxWidth: '640px' }}>
+              Empowering creativity, nurturing talent and building an inclusive art community where imagination has no limits.
+            </p>
           </div>
         </div>
       </section>
@@ -282,19 +179,19 @@ export default function Home({ setActivePage }) {
         <div className="container">
           <div className="stats-row">
             <div className="stat-card">
-              <div className="stat-num">10<span>+</span></div>
+              <div className="stat-num"><CountingNumber target={10} /><span>+</span></div>
               <div className="stat-label">Years of Impact</div>
             </div>
             <div className="stat-card">
-              <div className="stat-num">500<span>+</span></div>
+              <div className="stat-num"><CountingNumber target={500} /><span>+</span></div>
               <div className="stat-label">Students Trained</div>
             </div>
             <div className="stat-card">
-              <div className="stat-num">50<span>+</span></div>
+              <div className="stat-num"><CountingNumber target={50} /><span>+</span></div>
               <div className="stat-label">Exhibitions Held</div>
             </div>
             <div className="stat-card">
-              <div className="stat-num">1000<span>+</span></div>
+              <div className="stat-num"><CountingNumber target={1000} /><span>+</span></div>
               <div className="stat-label">Lives Touched</div>
             </div>
           </div>
@@ -312,36 +209,146 @@ export default function Home({ setActivePage }) {
 
 
 
-          <div className="gallery-grid">
-            {showcaseItems.map(item => (
-              <div key={item.id} className="gallery-card" onClick={() => handlePageChange('gallery')}>
-                {item.element}
-                <div className="gallery-overlay">
-                  <span>{item.title}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile Horizontally Scrollable Row (Visible only on mobile) */}
-          <div className="gallery-swipe-container">
-            <div className="gallery-swipe-row">
-              {filteredItems.map(item => (
-                <div 
-                  key={item.id} 
-                  className="gallery-swipe-card"
-                  onClick={() => handlePageChange('gallery')}
+          {/* Interactive Slideshow Carousel */}
+          <div 
+            className="gallery-slideshow-wrapper"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            style={{
+              position: 'relative',
+              maxWidth: '900px',
+              margin: '30px auto 0 auto',
+              overflow: 'hidden',
+              borderRadius: '24px',
+              boxShadow: 'var(--shadow-card)',
+              background: 'white',
+              border: '1px solid var(--border-soft)'
+            }}
+          >
+            {/* Main Slide Card */}
+            <div 
+              style={{ position: 'relative', height: '480px', width: '100%', cursor: 'pointer', background: '#0F0F30' }}
+              onClick={() => handlePageChange('gallery')}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentSlide}
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.03 }}
+                  transition={{ duration: 0.4 }}
+                  style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
                 >
-                  {item.element}
-                  <div className="gallery-overlay">
-                    <span>{item.title}</span>
+                  {filteredItems[currentSlide]?.element}
+                  
+                  {/* Title & Info Overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    background: 'linear-gradient(to top, rgba(15,15,48,0.92) 0%, rgba(15,15,48,0.4) 70%, transparent 100%)',
+                    padding: '36px 28px 24px 28px',
+                    color: 'white',
+                    display: 'flex',
+                    justify: 'space-between',
+                    alignItems: 'flex-end',
+                    zIndex: 5
+                  }}>
+                    <div>
+                      <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--saffron-light)', fontWeight: 600 }}>
+                        {filteredItems[currentSlide]?.category || 'Exhibition Artwork'}
+                      </span>
+                      <h3 style={{ fontSize: '1.6rem', color: 'white', margin: '4px 0 0 0', fontFamily: 'Oswald, sans-serif' }}>
+                        {filteredItems[currentSlide]?.title}
+                      </h3>
+                    </div>
+                    <span style={{ fontSize: '0.85rem', background: 'rgba(255,255,255,0.2)', padding: '4px 14px', borderRadius: '50px', backdropFilter: 'blur(8px)', fontWeight: 600 }}>
+                      {currentSlide + 1} / {totalSlides}
+                    </span>
                   </div>
-                </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Prev / Next Control Arrows */}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handlePrevSlide(); }}
+                aria-label="Previous Slide"
+                style={{
+                  position: 'absolute',
+                  left: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(255,255,255,0.85)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '46px',
+                  height: '46px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                  zIndex: 10,
+                  color: 'var(--navy)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <ChevronLeft size={26} />
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleNextSlide(); }}
+                aria-label="Next Slide"
+                style={{
+                  position: 'absolute',
+                  right: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(255,255,255,0.85)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '46px',
+                  height: '46px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                  zIndex: 10,
+                  color: 'var(--navy)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <ChevronRight size={26} />
+              </button>
+            </div>
+
+            {/* Slide Indicators Dots */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '16px 0', background: 'white' }}>
+              {filteredItems.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentSlide(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  style={{
+                    width: currentSlide === idx ? '32px' : '10px',
+                    height: '10px',
+                    borderRadius: '50px',
+                    border: 'none',
+                    background: currentSlide === idx ? 'var(--saffron)' : 'rgba(26,26,78,0.2)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                />
               ))}
             </div>
           </div>
 
-          <div className="gallery-center mt-10">
+          <div className="gallery-center" style={{ textAlign: 'center', marginTop: '32px' }}>
             <a className="btn btn-outline" onClick={() => handlePageChange('gallery')}>View Full Gallery →</a>
           </div>
         </div>
@@ -355,88 +362,108 @@ export default function Home({ setActivePage }) {
               <p className="eyebrow">Upcoming Events</p>
               <h2 className="display-section mb-8">Join Our Creative Events</h2>
               <div className="events-list">
-                <div className="event-card" onClick={() => handlePageChange('events')}>
-                  <div className="event-icon icon-saffron"><Image size={18} style={{ color: 'var(--saffron)' }} /></div>
-                  <div className="event-body">
-                    <div className="event-name">Art Exhibition 2025</div>
-                    <div className="event-date">📍 15–18 June, 2025 · Hyderabad</div>
-                    <span className="event-link">View Details →</span>
-                  </div>
-                </div>
-                <div className="event-card" onClick={() => handlePageChange('events')}>
-                  <div className="event-icon icon-pink"><PenTool size={18} style={{ color: 'var(--pink)' }} /></div>
-                  <div className="event-body">
-                    <div className="event-name">Acrylic Workshop</div>
-                    <div className="event-date">📍 22 June, 2025 · Hyderabad</div>
-                    <span className="event-link">View Details →</span>
-                  </div>
-                </div>
-                <div className="event-card" onClick={() => handlePageChange('events')}>
-                  <div className="event-icon icon-green"><Trees size={18} style={{ color: 'var(--green)' }} /></div>
-                  <div className="event-body">
-                    <div className="event-name">Art Retreat</div>
-                    <div className="event-date">📍 5–7 July, 2025 · Outskirts of Hyderabad</div>
-                    <span className="event-link">View Details →</span>
-                  </div>
-                </div>
+                {eventsList.length === 0 ? (
+                  <p style={{ color: 'var(--text-light)', fontStyle: 'italic', padding: '16px 0' }}>
+                    No events listed currently. Add new events via the Admin portal.
+                  </p>
+                ) : (
+                  eventsList.slice(0, 3).map((event, idx) => (
+                    <div 
+                      key={event._id || idx} 
+                      className="event-card" 
+                      onClick={() => handlePageChange('events')}
+                      style={{
+                        background: 'white',
+                        borderRadius: '16px',
+                        border: '1px solid var(--border-soft)',
+                        padding: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        cursor: 'pointer',
+                        boxShadow: 'var(--shadow-soft)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {event.image ? (
+                        <img 
+                          src={event.image} 
+                          alt={event.title} 
+                          style={{
+                            width: '68px',
+                            height: '68px',
+                            borderRadius: '12px',
+                            objectFit: 'cover',
+                            flexShrink: 0,
+                            border: '1px solid var(--border-soft)'
+                          }}
+                        />
+                      ) : (
+                        <div 
+                          className={`event-icon ${idx % 3 === 0 ? 'icon-saffron' : idx % 3 === 1 ? 'icon-pink' : 'icon-green'}`}
+                          style={{ flexShrink: 0 }}
+                        >
+                          {idx % 3 === 0 ? <Image size={20} style={{ color: 'var(--saffron)' }} /> : idx % 3 === 1 ? <PenTool size={20} style={{ color: 'var(--pink)' }} /> : <Trees size={20} style={{ color: 'var(--green)' }} />}
+                        </div>
+                      )}
+
+                      <div className="event-body">
+                        <div className="event-name" style={{ color: 'var(--navy)', fontFamily: 'Oswald, sans-serif', fontSize: '1.15rem', marginBottom: '4px' }}>
+                          {event.title}
+                        </div>
+                        <div className="event-date" style={{ color: 'var(--text-mid)', fontSize: '0.85rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          📍 {event.date} &bull; {event.location || 'Hyderabad'}
+                        </div>
+                        <span className="event-link" style={{ color: 'var(--saffron)', fontWeight: 600, fontSize: '0.85rem' }}>
+                          View Details &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
-            <div className="events-feature">
-              <svg width="100%" height="100%" viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
-                <rect width="400" height="360" fill="#E8F4F8" />
-                <circle cx="200" cy="120" r="34" fill="#F4C090" />
-                <ellipse cx="200" cy="103" rx="34" ry="22" fill="#2C1810" />
-                <rect x="172" y="150" width="56" height="60" fill="#27AE60" rx="8" />
-                <ellipse cx="160" cy="240" rx="28" ry="28" fill="none" stroke="#1A1A4E" stroke-width="4" />
-                <ellipse cx="240" cy="240" rx="28" ry="28" fill="none" stroke="#1A1A4E" stroke-width="4" />
-                <rect x="155" y="190" width="90" height="30" fill="#2C3E8C" rx="6" />
-                <rect x="155" y="188" width="90" height="10" fill="#3A52B4" rx="4" />
-                <rect x="260" y="70" width="100" height="130" fill="#FFF8F0" stroke="#C8956C" stroke-width="2" rx="4" />
-                <circle cx="310" cy="125" r="30" fill="#FFB347" opacity="0.6" />
-                <circle cx="310" cy="125" r="18" fill="#FF6B35" opacity="0.7" />
-                <circle cx="310" cy="125" r="8" fill="#FFD700" />
-                <ellipse cx="310" cy="100" rx="8" ry="18" fill="#E25B8B" opacity="0.7" />
-                <ellipse cx="310" cy="150" rx="8" ry="18" fill="#E25B8B" opacity="0.7" />
-                <ellipse cx="287" cy="125" rx="18" ry="8" fill="#7B68EE" opacity="0.7" />
-                <ellipse cx="333" cy="125" rx="18" ry="8" fill="#7B68EE" opacity="0.7" />
-                <circle cx="80" cy="50" r="24" fill="#E25B8B" opacity="0.2" />
-                <circle cx="340" cy="30" r="18" fill="#7B68EE" opacity="0.2" />
-                <circle cx="50" cy="290" r="20" fill="#2BAF8A" opacity="0.2" />
-              </svg>
+            <div className="events-feature" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img 
+                src="https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=800&auto=format&fit=crop" 
+                alt="Creative Events Exhibition" 
+                style={{
+                  width: '100%',
+                  height: '400px',
+                  objectFit: 'cover',
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-medium)'
+                }} 
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Support Banner */}
+      {/* Join Community Banner */}
       <section className="section-sm">
         <div className="container">
           <div className="support-banner">
             <div className="support-banner-text">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <Hand size={32} style={{ color: 'white' }} />
+                <User size={32} style={{ color: 'white' }} />
                 <div>
-                  <h2 style={{ fontSize: '1.6rem', color: 'white' }}>Support Our Mission</h2>
-                  <p style={{ color: 'rgba(255,255,255,0.7)' }}>Your support helps us provide art education, materials and opportunities to deserving artists.</p>
+                  <h2 style={{ fontSize: '1.6rem', color: 'white' }}>Join MasterBrush Community</h2>
+                  <p style={{ color: 'rgba(255,255,255,0.7)' }}>Create an account to participate in workshops, register for events, and connect with artists.</p>
                 </div>
               </div>
             </div>
             <div className="support-actions">
-              <div className="support-action" onClick={() => handlePageChange('support')}>
-                <div className="support-action-icon"><Coins size={20} /></div>
-                <div className="support-action-label">Donate</div>
-                <div className="support-action-sub">Contribute funds</div>
+              <div className="support-action" onClick={() => handlePageChange('login')}>
+                <div className="support-action-icon"><User size={20} /></div>
+                <div className="support-action-label">Login / Register</div>
+                <div className="support-action-sub">Join as member or artist</div>
               </div>
-              <div className="support-action" onClick={() => handlePageChange('support')}>
-                <div className="support-action-icon"><Palette size={20} /></div>
-                <div className="support-action-label">Sponsor an Artist</div>
-                <div className="support-action-sub">Empower a creative life</div>
-              </div>
-              <div className="support-action" onClick={() => handlePageChange('support')}>
-                <div className="support-action-icon"><Gift size={20} /></div>
-                <div className="support-action-label">Donate Materials</div>
-                <div className="support-action-sub">Support with art supplies</div>
+              <div className="support-action" onClick={() => handlePageChange('events')}>
+                <div className="support-action-icon"><Calendar size={20} /></div>
+                <div className="support-action-label">Upcoming Events</div>
+                <div className="support-action-sub">Register & participate</div>
               </div>
             </div>
           </div>

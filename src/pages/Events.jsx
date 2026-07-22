@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image, PenTool, Trees, Trophy, Calendar, MapPin } from 'lucide-react';
 
-const API_BASE = 'https://ngo-backend-production-b2ee.up.railway.app/api';
+const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
 
 export default function Events({ setActivePage, triggerToast }) {
   const [dbEvents, setDbEvents] = useState([]);
@@ -51,16 +51,12 @@ export default function Events({ setActivePage, triggerToast }) {
 
   const activeEvents = dbEvents.map(e => ({
     id: e._id || e.id,
-    type: e.category,
+    type: e.category || 'Event',
     title: e.title,
     date: e.date,
     location: e.location,
     description: e.description,
-    icon: e.image ? (
-      <img src={e.image} alt={e.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-    ) : getEventIcon(e.category),
-    colorClass: e.image ? '' : getEventColorClass(e.category),
-    useImage: !!e.image
+    image: e.image || '/cta-bg.jpg'
   }));
 
   const getEventBadgeClass = (category) => {
@@ -93,8 +89,7 @@ export default function Events({ setActivePage, triggerToast }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          ageGroup: 'Event Registration',
-          program: `Event: ${selectedEvent}`
+          eventTitle: selectedEvent
         })
       });
       const data = await response.json();
@@ -131,35 +126,72 @@ export default function Events({ setActivePage, triggerToast }) {
             <h2 className="display-section">What's Happening at MasterBrush</h2>
           </div>
 
-          <div className="events-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px' }}>
             {loading ? (
               <p style={{ textAlign: 'center', padding: '48px', gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--text-mid)' }}>Loading events from database...</p>
             ) : activeEvents.length === 0 ? (
               <p style={{ textAlign: 'center', padding: '48px', gridColumn: '1 / -1', color: 'var(--text-light)' }}>No upcoming events scheduled. Add new promos via the Admin dashboard.</p>
             ) : activeEvents.map(event => (
-              <div key={event.id} style={{ background: 'white', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-soft)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
-                <div style={{ height: '180px', background: 'var(--cream-warm)', display: 'flex', alignItems: event.useImage ? 'stretch' : 'center', justifyContent: event.useImage ? 'stretch' : 'center', overflow: 'hidden' }}>
-                  {event.icon}
-                </div>
-                <div style={{ padding: '24px' }}>
-                  <span className={`status-badge ${getEventBadgeClass(event.type)}`}>
+              <div 
+                key={event.id} 
+                style={{ 
+                  position: 'relative',
+                  borderRadius: '24px', 
+                  overflow: 'hidden', 
+                  boxShadow: 'var(--shadow-card)',
+                  minHeight: '380px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  background: `url("${event.image}") center/cover no-repeat`,
+                  border: '1px solid var(--border-soft)'
+                }}
+              >
+                {/* Dark Gradient Overlay for readability */}
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(to top, rgba(15,15,48,0.95) 0%, rgba(15,15,48,0.65) 55%, rgba(15,15,48,0.25) 100%)',
+                  zIndex: 1
+                }} />
+
+                {/* Card Content */}
+                <div style={{ position: 'relative', zIndex: 2, padding: '32px 28px', color: 'white' }}>
+                  <span style={{ 
+                    background: 'var(--saffron)', 
+                    color: 'white', 
+                    padding: '4px 14px', 
+                    borderRadius: '50px', 
+                    fontSize: '0.78rem', 
+                    fontWeight: 700, 
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    display: 'inline-block',
+                    marginBottom: '12px'
+                  }}>
                     {event.type}
                   </span>
-                  <h3 style={{ margin: '12px 0 8px', fontSize: '1.1rem' }}>{event.title}</h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Calendar size={14} /> {event.date}</span>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> {event.location}</span>
-                  </p>
-                  <p style={{ fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '16px' }}>
+                  
+                  <h3 style={{ margin: '0 0 10px', fontSize: '1.6rem', color: 'white', fontFamily: 'Oswald, sans-serif', lineHeight: 1.25 }}>
+                    {event.title}
+                  </h3>
+
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontWeight: 500 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><Calendar size={15} color="var(--saffron-light)" /> {event.date}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><MapPin size={15} color="var(--saffron-light)" /> {event.location}</span>
+                  </div>
+
+                  <p style={{ fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '22px', color: 'rgba(255,255,255,0.8)' }}>
                     {event.description}
                   </p>
-                  <a 
-                    className="btn btn-primary" 
-                    style={{ fontSize: '0.85rem' }} 
+
+                  <button 
+                    className="btn btn-accent" 
+                    style={{ fontSize: '0.9rem', width: '100%', padding: '12px', justifyContent: 'center', fontWeight: 600 }} 
                     onClick={() => handleRegisterClick(event.title)}
                   >
                     Register / Book Spot
-                  </a>
+                  </button>
                 </div>
               </div>
             ))}

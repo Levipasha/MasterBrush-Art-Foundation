@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Palette, ShieldCheck, Package, Truck, ShoppingCart } from 'lucide-react';
 
-const API_BASE = 'https://ngo-backend-production-b2ee.up.railway.app/api';
+const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
 
 export default function Shop({ setActivePage, triggerToast, cart, addToCart, clearCart }) {
   const [dbProducts, setDbProducts] = useState([]);
@@ -39,12 +39,12 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
   const activeProducts = dbProducts.map(p => ({
     id: p._id || p.id,
     category: p.category,
-    medium: p.category === 'Paintings' ? 'Acrylic on Canvas' : 'Handmade Art Piece',
+    medium: p.medium || (p.category === 'Paintings' ? 'Acrylic on Canvas' : 'Handmade Art Piece'),
     name: p.name,
     price: p.price,
     description: p.description,
     element: (
-      <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <img src={p.image || '/logo.png'} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     )
   }));
 
@@ -143,11 +143,11 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
                     <p style={{ fontSize: '0.85rem', marginBottom: '8px' }}>Scan this QR code to complete payment:</p>
                     <svg width="100" height="100" viewBox="0 0 100 100" style={{ margin: '0 auto' }}>
                       <rect width="100" height="100" fill="white"/>
-                      <rect x="5" y="5" width="35" height="35" fill="none" stroke="#333" stroke-width="3"/>
+                      <rect x="5" y="5" width="35" height="35" fill="none" stroke="#333" strokeWidth="3"/>
                       <rect x="12" y="12" width="21" height="21" fill="#333"/>
-                      <rect x="60" y="5" width="35" height="35" fill="none" stroke="#333" stroke-width="3"/>
+                      <rect x="60" y="5" width="35" height="35" fill="none" stroke="#333" strokeWidth="3"/>
                       <rect x="67" y="12" width="21" height="21" fill="#333"/>
-                      <rect x="5" y="60" width="35" height="35" fill="none" stroke="#333" stroke-width="3"/>
+                      <rect x="5" y="60" width="35" height="35" fill="none" stroke="#333" strokeWidth="3"/>
                       <rect x="12" y="67" width="21" height="21" fill="#333"/>
                       <rect x="60" y="60" width="8" height="8" fill="#333"/>
                       <rect x="74" y="60" width="8" height="8" fill="#333"/>
