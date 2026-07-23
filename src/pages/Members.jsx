@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Award, Calendar, ExternalLink } from 'lucide-react';
 
-const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
 export default function Members({ setActivePage, triggerToast }) {
   const [members, setMembers] = useState([]);
@@ -56,8 +56,8 @@ export default function Members({ setActivePage, triggerToast }) {
                   </h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
                     {members.filter(m => m.isFounder || m.role?.toLowerCase().includes('founder')).map(member => (
-                      <div key={member._id} style={{ display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-soft)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
-                        <div style={{ height: '280px', overflow: 'hidden', position: 'relative' }}>
+                      <div key={member._id} style={{ display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-soft)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)', maxWidth: '420px' }}>
+                        <div style={{ height: '360px', overflow: 'hidden', position: 'relative' }}>
                           <img src={member.image || '/founder.jpg'} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', padding: '16px' }}>
                             <span className="status-badge status-pending" style={{ fontSize: '0.75rem' }}>{member.role}</span>
@@ -91,8 +91,8 @@ export default function Members({ setActivePage, triggerToast }) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px' }}>
                   {members.filter(m => !(m.isFounder || m.role?.toLowerCase().includes('founder')) && m.isApproved !== false).map(member => (
-                    <div key={member._id} style={{ display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-soft)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
-                      <div style={{ height: '240px', overflow: 'hidden', position: 'relative', background: '#F8FAFC' }}>
+                    <div key={member._id} style={{ display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-soft)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)', maxWidth: '420px' }}>
+                      <div style={{ height: '300px', overflow: 'hidden', position: 'relative', background: '#F8FAFC' }}>
                         <img 
                           src={member.image || '/logo.png'} 
                           alt={member.name} 

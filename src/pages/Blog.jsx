@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Palette, Heart, Trees, X, BookOpen, User, Calendar, Clock, ArrowRight, ArrowLeft, Share2, Sparkles } from 'lucide-react';
 
-const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
 export default function Blog({ setActivePage, triggerToast }) {
   const [dbPosts, setDbPosts] = useState([]);

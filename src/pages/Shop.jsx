@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Palette, ShieldCheck, Package, Truck, ShoppingCart } from 'lucide-react';
 
-const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
 export default function Shop({ setActivePage, triggerToast, cart, addToCart, clearCart }) {
   const [dbProducts, setDbProducts] = useState([]);
@@ -14,8 +14,7 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
     name: '',
     email: '',
     phone: '',
-    address: '',
-    paymentMethod: 'Cash on Delivery'
+    address: ''
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -86,17 +85,21 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
         setOrderSuccess({
           id: data.orderId,
           total: getCartTotal(),
-          paymentMethod: checkoutForm.paymentMethod
+          name: checkoutForm.name,
+          phone: checkoutForm.phone,
+          email: checkoutForm.email,
+          address: checkoutForm.address,
+          items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity }))
         });
         clearCart();
         setCheckoutMode(false);
-        triggerToast('Order placed successfully!');
+        triggerToast('Order request placed successfully!');
       } else {
-        triggerToast(data.message || 'Failed to place order');
+        triggerToast(data.message || 'Failed to place order request');
       }
     } catch (err) {
       console.error(err);
-      triggerToast('Network error, could not submit order.');
+      triggerToast('Network error, could not submit order request.');
     } finally {
       setSubmitting(false);
     }
@@ -107,59 +110,51 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
       <div>
         <div className="page-hero">
           <div className="container page-hero-content">
-            <h1 className="display-hero">Order Placed!</h1>
+            <h1 className="display-hero">Order Requested!</h1>
             <p>Thank you for supporting MasterBrush Art Foundation.</p>
           </div>
         </div>
         
         <section className="section">
-          <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
+          <div className="container" style={{ maxWidth: '700px', textAlign: 'center' }}>
             <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🎉</div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.8rem', marginBottom: '12px' }}>
-              Thank You For Your Purchase!
+              Your Order Request has been Submitted!
             </h2>
             <p style={{ color: 'var(--text-mid)', marginBottom: '24px' }}>
-              Your order ID is <strong>{orderSuccess.id}</strong>. We have sent a confirmation email to your address.
+              Your Order ID is <strong>{orderSuccess.id}</strong>. We have received your order request and our administrator will contact you shortly.
             </p>
             
             <div style={{ background: 'white', border: '1px solid var(--border-soft)', padding: '28px', borderRadius: 'var(--radius-md)', textAlign: 'left', marginBottom: '32px', boxShadow: 'var(--shadow-soft)' }}>
-              <h3 style={{ fontSize: '1rem', borderBottom: '1px solid var(--border-soft)', paddingBottom: '12px', marginBottom: '16px' }}>Payment Instructions</h3>
-              <div style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                <p><strong>Total Amount:</strong> ₹{orderSuccess.total.toLocaleString()}</p>
-                <p><strong>Payment Method:</strong> {orderSuccess.paymentMethod}</p>
-                
-                {orderSuccess.paymentMethod === 'Bank Transfer' && (
-                  <div style={{ background: 'var(--cream)', padding: '16px', borderRadius: 'var(--radius-sm)', marginTop: '16px' }}>
-                    <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)' }}>HDFC Bank Transfer details:</p>
-                    <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>Account Name: MasterBrush Art Foundation</p>
-                    <p style={{ fontSize: '0.8rem' }}>Account No: 1234567890172345</p>
-                    <p style={{ fontSize: '0.8rem' }}>IFSC Code: HDFC0P00334</p>
-                    <p style={{ fontSize: '0.72rem', color: 'var(--text-light)', marginTop: '8px' }}>* Please share a screenshot of the transaction with your Order ID to our WhatsApp or email to dispatch your artwork immediately.</p>
+              <h3 style={{ fontSize: '1.15rem', borderBottom: '1.5px solid var(--border-soft)', paddingBottom: '12px', marginBottom: '16px', color: 'var(--navy)' }}>Order Summary</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem', marginBottom: '24px' }}>
+                {orderSuccess.items.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>
+                      <strong>{item.name}</strong> <span style={{ color: 'var(--text-light)' }}>x{item.quantity}</span>
+                    </span>
+                    <span>₹{(item.price * item.quantity).toLocaleString()}</span>
                   </div>
-                )}
+                ))}
+                <div style={{ borderTop: '1.5px solid var(--border-soft)', paddingTop: '12px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: 'var(--navy)', fontSize: '1rem' }}>
+                  <span>Total Amount</span>
+                  <span style={{ color: 'var(--saffron)' }}>₹{orderSuccess.total.toLocaleString()}</span>
+                </div>
+              </div>
 
-                {orderSuccess.paymentMethod === 'QR Scan' && (
-                  <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                    <p style={{ fontSize: '0.85rem', marginBottom: '8px' }}>Scan this QR code to complete payment:</p>
-                    <svg width="100" height="100" viewBox="0 0 100 100" style={{ margin: '0 auto' }}>
-                      <rect width="100" height="100" fill="white"/>
-                      <rect x="5" y="5" width="35" height="35" fill="none" stroke="#333" strokeWidth="3"/>
-                      <rect x="12" y="12" width="21" height="21" fill="#333"/>
-                      <rect x="60" y="5" width="35" height="35" fill="none" stroke="#333" strokeWidth="3"/>
-                      <rect x="67" y="12" width="21" height="21" fill="#333"/>
-                      <rect x="5" y="60" width="35" height="35" fill="none" stroke="#333" strokeWidth="3"/>
-                      <rect x="12" y="67" width="21" height="21" fill="#333"/>
-                      <rect x="60" y="60" width="8" height="8" fill="#333"/>
-                      <rect x="74" y="60" width="8" height="8" fill="#333"/>
-                      <rect x="60" y="74" width="8" height="8" fill="#333"/>
-                      <rect x="74" y="74" width="8" height="8" fill="#333"/>
-                    </svg>
-                  </div>
-                )}
-                
-                {orderSuccess.paymentMethod === 'Cash on Delivery' && (
-                  <p style={{ marginTop: '12px', fontSize: '0.8rem', color: 'var(--text-light)' }}>* Our logistics team will call you to confirm your shipping address before dispatching. You can pay cash upon delivery.</p>
-                )}
+              <h3 style={{ fontSize: '1.15rem', borderBottom: '1.5px solid var(--border-soft)', paddingBottom: '12px', marginBottom: '16px', color: 'var(--navy)' }}>Shipping Information</h3>
+              <div style={{ fontSize: '0.88rem', color: 'var(--text-mid)', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px', lineHeight: '1.5' }}>
+                <p><strong>Full Name:</strong> {orderSuccess.name}</p>
+                <p><strong>Email Address:</strong> {orderSuccess.email}</p>
+                <p><strong>Mobile Number:</strong> {orderSuccess.phone}</p>
+                <p><strong>Delivery Address:</strong> {orderSuccess.address}</p>
+              </div>
+
+              <h3 style={{ fontSize: '1.15rem', borderBottom: '1.5px solid var(--border-soft)', paddingBottom: '12px', marginBottom: '16px', color: 'var(--navy)' }}>How Ordering Works next</h3>
+              <div style={{ fontSize: '0.88rem', color: 'var(--text-mid)', display: 'flex', flexDirection: 'column', gap: '10px', lineHeight: '1.5' }}>
+                <p>1. Our administrator will contact you on your registered mobile number: <strong>{orderSuccess.phone}</strong>.</p>
+                <p>2. The admin will verify your details, confirm the order, and explain the manual payment process (UPI, Bank Transfer, Cash on Delivery, etc.).</p>
+                <p>3. Once payment is confirmed, your package will be packed and shipped to your delivery address.</p>
               </div>
             </div>
 
@@ -211,13 +206,13 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
                     />
                   </div>
                   <div className="form-group">
-                    <label>Phone Number *</label>
+                    <label>Mobile Number *</label>
                     <input 
                       type="tel" 
                       name="phone" 
                       value={checkoutForm.phone} 
                       onChange={handleInputChange} 
-                      placeholder="+91 00000 00000" 
+                      placeholder="Enter your mobile number" 
                       required 
                     />
                   </div>
@@ -232,13 +227,24 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
                       required 
                     ></textarea>
                   </div>
-                  <div className="form-group">
-                    <label>Payment Method *</label>
-                    <select name="paymentMethod" value={checkoutForm.paymentMethod} onChange={handleInputChange}>
-                      <option value="Cash on Delivery">Cash on Delivery (COD)</option>
-                      <option value="Bank Transfer">Bank Transfer (IMPS/NEFT)</option>
-                      <option value="QR Scan">UPI / Scan QR Code</option>
-                    </select>
+
+                  {/* How Ordering Works Box */}
+                  <div style={{ background: 'var(--cream-warm)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)', padding: '20px', marginTop: '24px', marginBottom: '20px' }}>
+                    <h4 style={{ color: 'var(--navy)', fontSize: '1rem', fontWeight: '700', marginBottom: '10px' }}>How Ordering Works</h4>
+                    <ol style={{ paddingLeft: '20px', margin: 0, fontSize: '0.85rem', color: 'var(--text-mid)', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: '1.5' }}>
+                      <li>Fill in your shipping details.</li>
+                      <li>Submit your order request.</li>
+                      <li>Our administrator will contact you on your registered mobile number.</li>
+                      <li>The admin will confirm your order and explain the payment process.</li>
+                      <li>Once payment is confirmed, your package will be packed and shipped to your delivery address.</li>
+                    </ol>
+                  </div>
+
+                  {/* Warning Note Box */}
+                  <div style={{ background: 'var(--saffron-pale)', borderLeft: '4px solid var(--saffron)', borderRadius: 'var(--radius-sm)', padding: '16px', marginBottom: '24px' }}>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--saffron)', margin: 0, lineHeight: '1.5', fontWeight: '600' }}>
+                      <strong>Note:</strong> We do not accept online payments through the website. After submitting your order request, our team will contact you on your registered mobile number to confirm your order, discuss payment, and arrange shipping. Please ensure your mobile number is correct and reachable.
+                    </p>
                   </div>
 
                   <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
@@ -256,7 +262,7 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
                       style={{ flex: 1, justifyContent: 'center' }}
                       disabled={submitting}
                     >
-                      {submitting ? 'Placing Order...' : `Place Order (₹${getCartTotal().toLocaleString()})`}
+                      {submitting ? 'Requesting Order...' : 'Request Order'}
                     </button>
                   </div>
                 </form>

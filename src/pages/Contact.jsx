@@ -27,14 +27,17 @@ const WhatsappIcon = ({ size = 16 }) => (
   </svg>
 );
 
-const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
 export default function Contact({ setActivePage, triggerToast }) {
+  const DEFAULT_ADDRESS = 'Plot No. 13, Sri Sai Avenue Apartment, R.K.H Colony, AS Rao Nagar, Hyderabad - 500062';
+  const DEFAULT_MAP_URL = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.2345!2d78.5587!3d17.4693!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9b3f4c0f2a37%3A0x6c2b3a1e2f4d5e6a!2sAS%20Rao%20Nagar%2C%20Hyderabad%2C%20Telangana%20500062!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin';
+
   const [contactConfig, setContactConfig] = useState({
-    address: 'Plot No. 42, Art Colony, Jubilee Hills, Hyderabad - 500033',
+    address: DEFAULT_ADDRESS,
     phone: '+91 98765 43210',
     email: 'info@masterbrush.org',
-    mapUrl: ''
+    mapUrl: DEFAULT_MAP_URL
   });
   const [formData, setFormData] = useState({
     name: '',
@@ -51,7 +54,12 @@ export default function Contact({ setActivePage, triggerToast }) {
         const res = await fetch(`${API_BASE}/contact`);
         const json = await res.json();
         if (json.success && json.data) {
-          setContactConfig(json.data);
+          setContactConfig(prev => ({
+            ...json.data,
+            // Always use the real address & map if the DB has no override
+            address: json.data.address || DEFAULT_ADDRESS,
+            mapUrl: json.data.mapUrl || DEFAULT_MAP_URL
+          }));
         }
       } catch (err) {
         console.error("Error fetching contact details:", err);
@@ -157,25 +165,27 @@ export default function Contact({ setActivePage, triggerToast }) {
                 </div>
               </div>
 
-              {/* Map placeholder */}
-              {contactConfig.mapUrl ? (
-                <div style={{ marginTop: '28px', borderRadius: 'var(--radius-md)', overflow: 'hidden', height: '200px', border: '1px solid var(--border-soft)' }}>
-                  <iframe 
-                    title="MasterBrush Location Map"
-                    src={contactConfig.mapUrl} 
-                    width="100%" 
-                    height="100%" 
-                    style={{ border: 0 }} 
-                    allowFullScreen="" 
-                    loading="lazy" 
-                  />
+              {/* Map embed — always shown */}
+              <div style={{ marginTop: '28px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '2px solid var(--border-soft)', boxShadow: 'var(--shadow-card)' }}>
+                <div style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%)', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MapPin size={15} color="#F97316" />
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'white', letterSpacing: '0.05em' }}>OUR LOCATION</span>
                 </div>
-              ) : (
-                <div style={{ marginTop: '28px', borderRadius: 'var(--radius-md)', overflow: 'hidden', height: '200px', background: 'var(--cream-warm)', border: '1px solid var(--border-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'center' }}><MapPin size={32} style={{ color: 'var(--saffron)' }} /></div>
-                  <div style={{ fontSize: '0.82rem', color: 'var(--text-light)', fontWeight: 600 }}>{contactConfig.address}</div>
+                <iframe
+                  title="MasterBrush Location Map"
+                  src={contactConfig.mapUrl || DEFAULT_MAP_URL}
+                  width="100%"
+                  height="220"
+                  style={{ border: 0, display: 'block' }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+                <div style={{ background: '#F8FAFC', padding: '10px 14px', display: 'flex', alignItems: 'flex-start', gap: '8px', borderTop: '1px solid var(--border-soft)' }}>
+                  <MapPin size={14} color="var(--saffron)" style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-mid)', lineHeight: '1.5' }}>{contactConfig.address}</span>
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="contact-form">

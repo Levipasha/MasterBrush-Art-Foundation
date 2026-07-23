@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+
 export default function Gallery({ setActivePage }) {
   const [dbItems, setDbItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ export default function Gallery({ setActivePage }) {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/gallery');
+        const res = await fetch(`${API_BASE}/gallery`);
         const json = await res.json();
         if (json.success && json.data) {
           setDbItems(json.data);

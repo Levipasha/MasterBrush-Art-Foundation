@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image, PenTool, Trees, Trophy, Calendar, MapPin } from 'lucide-react';
 
-const API_BASE = 'https://ngo-backend-zeta.vercel.app/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
 export default function Events({ setActivePage, triggerToast }) {
   const [dbEvents, setDbEvents] = useState([]);

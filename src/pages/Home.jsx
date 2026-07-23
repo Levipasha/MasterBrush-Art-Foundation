@@ -3,6 +3,8 @@ import { Palette, Sparkles, Heart, Award, Activity, Image, PenTool, Trees, Hand,
 import { motion, AnimatePresence } from 'motion/react';
 import { CountingNumber } from '../components/ui/counting-number';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+
 export default function Home({ setActivePage }) {
   const [homeConfig, setHomeConfig] = useState({
     heroTagline: '✦ Empowering Creativity Since 2025',
@@ -48,11 +50,12 @@ export default function Home({ setActivePage }) {
   };
 
   const [eventsList, setEventsList] = useState([]);
+  const [storiesList, setStoriesList] = useState([]);
 
   useEffect(() => {
     const fetchHome = async () => {
       try {
-        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/home');
+        const res = await fetch(`${API_BASE}/home`);
         const json = await res.json();
         if (json.success && json.data) {
           setHomeConfig(json.data);
@@ -63,7 +66,7 @@ export default function Home({ setActivePage }) {
     };
     const fetchGallery = async () => {
       try {
-        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/gallery');
+        const res = await fetch(`${API_BASE}/gallery`);
         const json = await res.json();
         if (json.success && json.data) {
           setGalleryList(json.data);
@@ -74,7 +77,7 @@ export default function Home({ setActivePage }) {
     };
     const fetchEvents = async () => {
       try {
-        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/events');
+        const res = await fetch(`${API_BASE}/events`);
         const json = await res.json();
         if (json.success && json.data) {
           setEventsList(json.data);
@@ -83,9 +86,21 @@ export default function Home({ setActivePage }) {
         console.error("Error fetching homepage events:", err);
       }
     };
+    const fetchStories = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/stories`);
+        const json = await res.json();
+        if (json.success && json.data) {
+          setStoriesList(json.data);
+        }
+      } catch (err) {
+        console.error("Error fetching homepage stories:", err);
+      }
+    };
     fetchHome();
     fetchGallery();
     fetchEvents();
+    fetchStories();
   }, []);
 
 
@@ -426,7 +441,7 @@ export default function Home({ setActivePage }) {
 
             <div className="events-feature" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img 
-                src="https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=800&auto=format&fit=crop" 
+                src="/whatsapp_event_image.jpeg" 
                 alt="Creative Events Exhibition" 
                 style={{
                   width: '100%',
@@ -478,36 +493,32 @@ export default function Home({ setActivePage }) {
             <h2 className="display-section">Stories of Transformation</h2>
           </div>
           <div className="testimonials-grid">
-            <div className="testimonial-card">
-              <p className="testimonial-text">MasterBrush gave me the confidence to believe in my talent. It's more than an art class, it's a family.</p>
-              <div className="testimonial-author">
-                <div className="author-avatar">AN</div>
-                <div>
-                  <div className="author-name">Ananya</div>
-                  <div className="author-role">Student</div>
+            {storiesList.length === 0 ? (
+              <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-mid)', fontStyle: 'italic', padding: '24px 0', width: '100%' }}>
+                No stories of transformation listed currently. Add new stories via the Admin portal.
+              </p>
+            ) : (
+              storiesList.map((story, idx) => (
+                <div key={story._id || idx} className="testimonial-card">
+                  <p className="testimonial-text">{story.text}</p>
+                  <div className="testimonial-author">
+                    <div 
+                      className="author-avatar" 
+                      style={{ 
+                        background: idx % 3 === 0 ? 'var(--navy)' : idx % 3 === 1 ? 'var(--pink)' : 'var(--green)',
+                        color: 'white'
+                      }}
+                    >
+                      {story.avatarInitials || (story.authorName ? story.authorName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'ST')}
+                    </div>
+                    <div>
+                      <div className="author-name">{story.authorName}</div>
+                      <div className="author-role">{story.authorRole}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="testimonial-card">
-              <p className="testimonial-text">My son has specially-abled needs and the team made him feel so included and celebrated. His artwork is now in the gallery!</p>
-              <div className="testimonial-author">
-                <div className="author-avatar" style={{ background: 'var(--pink)' }}>PR</div>
-                <div>
-                  <div className="author-name">Priya Reddy</div>
-                  <div className="author-role">Parent</div>
-                </div>
-              </div>
-            </div>
-            <div className="testimonial-card">
-              <p className="testimonial-text">Art therapy sessions at MasterBrush helped me heal. I found a new way to express emotions I couldn't put into words.</p>
-              <div className="testimonial-author">
-                <div className="author-avatar" style={{ background: 'var(--green)' }}>RK</div>
-                <div>
-                  <div className="author-name">Rajan Kumar</div>
-                  <div className="author-role">Art Therapy Participant</div>
-                </div>
-              </div>
-            </div>
+              ))
+            )}
           </div>
         </div>
       </section>

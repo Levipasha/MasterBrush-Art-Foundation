@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Target, Sparkles, Heart, Award, Activity, Users, ShieldCheck, CheckCircle } from 'lucide-react';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+
 export default function About({ setActivePage }) {
   const defaultAbout = {
     storyTitle: 'About the Foundation',
@@ -23,7 +25,7 @@ export default function About({ setActivePage }) {
   useEffect(() => {
     const fetchAbout = async () => {
       try {
-        const res = await fetch('https://ngo-backend-zeta.vercel.app/api/about');
+        const res = await fetch(`${API_BASE}/about`);
         const json = await res.json();
         if (json.success && json.data) {
           setAboutInfo(json.data);

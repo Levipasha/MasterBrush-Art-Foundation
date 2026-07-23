@@ -9,6 +9,8 @@ import {
   signOut 
 } from '../firebase';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+
 export default function Login({ setActivePage, triggerToast }) {
   const [isLoginTab, setIsLoginTab] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -74,7 +76,7 @@ export default function Login({ setActivePage, triggerToast }) {
   useEffect(() => {
     if (currentUser && currentUser.email) {
       setCheckingApproval(true);
-      fetch('https://ngo-backend-zeta.vercel.app/api/members/login-check', {
+      fetch(`${API_BASE}/members/login-check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: currentUser.email })
@@ -98,7 +100,7 @@ export default function Login({ setActivePage, triggerToast }) {
     e.preventDefault();
     if (!currentUser || !currentUser.email) return;
     try {
-      const res = await fetch('https://ngo-backend-zeta.vercel.app/api/members/profile/update', {
+      const res = await fetch(`${API_BASE}/members/profile/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -129,7 +131,7 @@ export default function Login({ setActivePage, triggerToast }) {
 
     setPostingArt(true);
     try {
-      const res = await fetch('https://ngo-backend-zeta.vercel.app/api/members/artworks/add', {
+      const res = await fetch(`${API_BASE}/members/artworks/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -295,7 +297,7 @@ export default function Login({ setActivePage, triggerToast }) {
       }
 
       // Register with MongoDB backend database
-      const res = await fetch('https://ngo-backend-zeta.vercel.app/api/members/register', {
+      const res = await fetch(`${API_BASE}/members/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(regPayload)
@@ -334,8 +336,8 @@ export default function Login({ setActivePage, triggerToast }) {
       <div style={{ maxWidth: currentUser ? '720px' : '520px', width: '100%' }}>
         
         {/* Breadcrumb */}
-        <div className="breadcrumb" style={{ marginBottom: '24px', textAlign: 'center' }}>
-          <a onClick={() => setActivePage('home')}>Home</a> &gt; <span>{currentUser ? 'My Account Studio' : (isLoginTab ? 'Login' : 'Register')}</span>
+        <div className="breadcrumb" style={{ marginBottom: '24px', textAlign: 'center', color: 'var(--text-mid)' }}>
+          <a onClick={() => setActivePage('home')} style={{ color: 'var(--text-mid)' }}>Home</a> &gt; <span style={{ color: 'var(--navy)', fontWeight: 600 }}>{currentUser ? 'My Account Studio' : (isLoginTab ? 'Login' : 'Register')}</span>
         </div>
 
         {currentUser ? (
@@ -611,8 +613,8 @@ export default function Login({ setActivePage, triggerToast }) {
               </button>
               <button 
                 onClick={handleLogout} 
-                className="btn btn-outline" 
-                style={{ flex: 1, padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: 'var(--accent)' }}
+                className="btn btn-danger-outline" 
+                style={{ flex: 1, padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
               >
                 <LogOut size={16} /> Log Out
               </button>

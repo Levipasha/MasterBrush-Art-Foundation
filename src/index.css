@@ -314,6 +314,18 @@ p { color: var(--text-mid); }
 }
 .btn-outline:hover { background: var(--navy); color: white; transform: translateY(-2px); }
 
+.btn-danger-outline {
+  background: transparent;
+  color: #EA580C;
+  border: 2px solid #EA580C;
+}
+.btn-danger-outline:hover {
+  background: #EA580C;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.25);
+}
+
 .btn-accent {
   background: var(--saffron);
   color: white;
