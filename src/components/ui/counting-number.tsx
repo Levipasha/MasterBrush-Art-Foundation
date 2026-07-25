@@ -67,9 +67,19 @@ export const CountingNumber = forwardRef<
     useImperativeHandle(ref, () => ({ startAnimation }));
 
     useEffect(() => {
-      if (autoStart) startAnimation();
+      if (autoStart) {
+        controlsRef.current?.stop();
+        onStart?.();
+        count.set(from);
+        controlsRef.current = animate(count, target, {
+          duration: transition?.duration ?? 3,
+          ease: transition?.ease ?? "easeInOut",
+          type: transition?.type ?? "tween",
+          onComplete: () => onComplete?.(),
+        });
+      }
       return () => controlsRef.current?.stop();
-    }, [autoStart, startAnimation]);
+    }, [autoStart, target, from]);
 
     return (
       <motion.span className={cn("tabular-nums", className)} {...props}>

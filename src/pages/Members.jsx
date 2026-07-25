@@ -25,6 +25,7 @@ export default function Members({ setActivePage, triggerToast }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeArtist, setActiveArtist] = useState(null);
+  const [zoomedArtImage, setZoomedArtImage] = useState(null);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -137,24 +138,24 @@ export default function Members({ setActivePage, triggerToast }) {
                       </div>
 
                       <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <div>
+                        <div style={{ marginBottom: '20px' }}>
                           <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: 'var(--navy)', marginBottom: '8px' }}>{member.name}</h3>
                           {member.instagram && (
                             <p style={{ fontSize: '0.85rem', color: 'var(--accent)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
                               <InstagramIcon size={14} /> @{member.instagram}
                             </p>
                           )}
-                          <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-mid)', marginBottom: '20px' }}>
+                          <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-mid)', margin: 0 }}>
                             {member.info || 'Passionate artist creating inspiring handcrafted artworks at MasterBrush Art Foundation.'}
                           </p>
-                          <button 
-                            className="btn btn-primary" 
-                            style={{ width: '100%', padding: '10px 0', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: 'auto' }}
-                            onClick={() => setActiveArtist(member)}
-                          >
-                            Explore Art
-                          </button>
                         </div>
+                        <button 
+                          className="btn btn-primary" 
+                          style={{ width: '100%', padding: '10px 0', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: 'auto' }}
+                          onClick={() => setActiveArtist(member)}
+                        >
+                          Explore Art
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -179,7 +180,7 @@ export default function Members({ setActivePage, triggerToast }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-soft)', paddingBottom: '12px' }}>
               <div>
                 <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.6rem', color: 'var(--navy)', margin: 0 }}>
-                  🎨 {activeArtist.name}'s Portfolio
+                  {activeArtist.name}'s Portfolio
                 </h3>
                 {activeArtist.instagram && (
                   <p style={{ fontSize: '0.85rem', color: 'var(--accent)', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
@@ -208,27 +209,17 @@ export default function Members({ setActivePage, triggerToast }) {
                   {activeArtist.artworks.filter(art => art.isApproved !== false).map((art, idx) => (
                     <div key={art.id || idx} style={{ border: '1px solid var(--border-soft)', borderRadius: '12px', overflow: 'hidden', background: '#F8FAFC', display: 'flex', flexDirection: 'column', height: '100%' }}>
                       <div style={{ height: '140px', overflow: 'hidden', background: '#F1F5F9' }}>
-                        <img src={art.image} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img 
+                          src={art.image} 
+                          alt={art.title} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in' }} 
+                          onClick={() => setZoomedArtImage(art.image)}
+                        />
                       </div>
-                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <div>
-                          <h5 style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--navy)', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.title}</h5>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', margin: '0 0 8px 0' }}>{art.category}</p>
-                          {art.description && <p style={{ fontSize: '0.78rem', color: 'var(--text-mid)', lineHeight: '1.4', margin: '0 0 12px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{art.description}</p>}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid var(--border-soft)' }}>
-                          <span style={{ fontSize: '0.9rem', color: 'var(--saffron)', fontWeight: '700' }}>₹{art.price ? art.price.toLocaleString('en-IN') : 'N/A'}</span>
-                          <span style={{ 
-                            fontSize: '0.7rem', 
-                            padding: '2px 6px', 
-                            borderRadius: '50px', 
-                            background: art.status === 'Sold Out' ? '#FCEBEB' : '#E1F6EB', 
-                            color: art.status === 'Sold Out' ? '#C42424' : '#1A7A44',
-                            fontWeight: 700 
-                          }}>
-                            {art.status || 'Available'}
-                          </span>
-                        </div>
+                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <h5 style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--navy)', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.title}</h5>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', margin: '0 0 8px 0' }}>{art.category}</p>
+                        {art.description && <p style={{ fontSize: '0.78rem', color: 'var(--text-mid)', lineHeight: '1.4', margin: '0 0 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{art.description}</p>}
                       </div>
                     </div>
                   ))}
@@ -239,6 +230,55 @@ export default function Members({ setActivePage, triggerToast }) {
                 No portfolio artworks published by this artist yet.
               </p>
             )}
+          </div>
+        </div>
+      )}
+      {/* Zoomed Artwork Lightbox Modal */}
+      {zoomedArtImage && (
+        <div 
+          onClick={() => setZoomedArtImage(null)} 
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            background: 'rgba(0,0,0,0.85)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            zIndex: 2000,
+            cursor: 'zoom-out'
+          }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ position: 'relative', maxWidth: '90%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+          >
+            <img 
+              src={zoomedArtImage} 
+              alt="Zoomed Artwork" 
+              style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', cursor: 'default' }} 
+            />
+            <button 
+              onClick={() => setZoomedArtImage(null)} 
+              style={{ 
+                position: 'absolute', 
+                top: '-40px', 
+                right: '0', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
+                color: 'white', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '4px',
+                fontSize: '1rem',
+                fontWeight: 'bold'
+              }}
+            >
+              <X size={24} /> Close
+            </button>
           </div>
         </div>
       )}

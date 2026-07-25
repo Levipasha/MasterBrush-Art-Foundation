@@ -376,7 +376,9 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
         
         <section className="section">
           <div className="container" style={{ maxWidth: '700px', textAlign: 'center' }}>
-            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🎉</div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '80px', height: '80px', borderRadius: '50%', background: '#E1F6EB', color: '#1A7A44', marginBottom: '20px' }}>
+              <ShieldCheck size={40} />
+            </div>
             <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.8rem', marginBottom: '12px' }}>
               Your Order Request has been Submitted!
             </h2>
@@ -575,7 +577,9 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
-              📦 Track Your Order
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <Truck size={16} /> Track Your Order
+              </span>
             </button>
           </div>
         </div>

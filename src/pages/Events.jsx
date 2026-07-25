@@ -6,6 +6,10 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 export default function Events({ setActivePage, triggerToast }) {
   const [dbEvents, setDbEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [eventsConfig, setEventsConfig] = useState({
+    title: 'Events',
+    tagline: 'Join our creative gatherings, workshops, exhibitions and competitions.'
+  });
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -28,7 +32,22 @@ export default function Events({ setActivePage, triggerToast }) {
         setLoading(false);
       }
     };
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/home`);
+        const json = await res.json();
+        if (json.success && json.data) {
+          setEventsConfig({
+            title: json.data.eventsTitle || 'Events',
+            tagline: json.data.eventsTagline || 'Join our creative gatherings, workshops, exhibitions and competitions.'
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching events config:", err);
+      }
+    };
     fetchEvents();
+    fetchConfig();
   }, []);
 
   const getEventIcon = (category) => {
@@ -49,15 +68,19 @@ export default function Events({ setActivePage, triggerToast }) {
     }
   };
 
-  const activeEvents = dbEvents.map(e => ({
+  const mappedEvents = dbEvents.map(e => ({
     id: e._id || e.id,
     type: e.category || 'Event',
     title: e.title,
     date: e.date,
     location: e.location,
     description: e.description,
-    image: e.image || '/cta-bg.jpg'
+    image: e.image || '/cta-bg.jpg',
+    status: e.status || 'Current'
   }));
+
+  const upcomingEvents = mappedEvents.filter(e => e.status !== 'Completed');
+  const pastEvents = mappedEvents.filter(e => e.status === 'Completed');
 
   const getEventBadgeClass = (category) => {
     switch (category) {
@@ -89,7 +112,7 @@ export default function Events({ setActivePage, triggerToast }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          eventTitle: selectedEvent
+          program: selectedEvent
         })
       });
       const data = await response.json();
@@ -114,8 +137,8 @@ export default function Events({ setActivePage, triggerToast }) {
       <div className="page-hero">
         <div className="container page-hero-content">
           <div className="breadcrumb"><a onClick={() => setActivePage('home')}>Home</a> › <span>Events</span></div>
-          <h1 className="display-hero">Events</h1>
-          <p>Join our creative gatherings, workshops, exhibitions and competitions.</p>
+          <h1 className="display-hero">{eventsConfig.title}</h1>
+          <p>{eventsConfig.tagline}</p>
         </div>
       </div>
 
@@ -129,9 +152,9 @@ export default function Events({ setActivePage, triggerToast }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px' }}>
             {loading ? (
               <p style={{ textAlign: 'center', padding: '48px', gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--text-mid)' }}>Loading events from database...</p>
-            ) : activeEvents.length === 0 ? (
+            ) : upcomingEvents.length === 0 ? (
               <p style={{ textAlign: 'center', padding: '48px', gridColumn: '1 / -1', color: 'var(--text-light)' }}>No upcoming events scheduled. Add new promos via the Admin dashboard.</p>
-            ) : activeEvents.map(event => (
+            ) : upcomingEvents.map(event => (
               <div 
                 key={event.id} 
                 style={{ 
@@ -147,7 +170,7 @@ export default function Events({ setActivePage, triggerToast }) {
                   border: '1px solid var(--border-soft)',
                   maxWidth: '420px',
                   width: '100%',
-                  margin: activeEvents.length === 1 ? '0 auto' : '0'
+                  margin: upcomingEvents.length === 1 ? '0 auto' : '0'
                 }}
               >
                 {/* Lightened Gradient Overlay for better image clarity and readability */}
@@ -201,6 +224,91 @@ export default function Events({ setActivePage, triggerToast }) {
           </div>
         </div>
       </section>
+
+      {/* Completed/Past Events Section */}
+      {!loading && pastEvents.length > 0 && (
+        <section className="section" style={{ background: '#F8FAFC', borderTop: '1px solid var(--border-soft)' }}>
+          <div className="container">
+            <div className="section-header">
+              <p className="eyebrow">Our Journey</p>
+              <h2 className="display-section">Completed Events &amp; Exhibitions</h2>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px' }}>
+              {pastEvents.map(event => (
+                <div 
+                  key={event.id} 
+                  style={{ 
+                    position: 'relative',
+                    borderRadius: '24px', 
+                    overflow: 'hidden', 
+                    boxShadow: 'var(--shadow-card)',
+                    minHeight: '380px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                    background: `url("${event.image}") center/cover no-repeat`,
+                    border: '1px solid var(--border-soft)',
+                    maxWidth: '420px',
+                    width: '100%',
+                    margin: pastEvents.length === 1 ? '0 auto' : '0',
+                    filter: 'grayscale(25%)'
+                  }}
+                >
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(to top, rgba(15,15,48,0.9) 0%, rgba(15,15,48,0.45) 50%, rgba(15,15,48,0.1) 100%)',
+                    zIndex: 1
+                  }} />
+
+                  <div style={{ position: 'relative', zIndex: 2, padding: '32px 28px', color: 'white' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
+                      <span style={{ 
+                        background: 'rgba(255,255,255,0.2)', 
+                        color: 'white', 
+                        padding: '4px 14px', 
+                        borderRadius: '50px', 
+                        fontSize: '0.78rem', 
+                        fontWeight: 700, 
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                      }}>
+                        {event.type}
+                      </span>
+                      <span style={{ 
+                        background: '#FCEBEB', 
+                        color: '#C42424', 
+                        padding: '4px 14px', 
+                        borderRadius: '50px', 
+                        fontSize: '0.78rem', 
+                        fontWeight: 700, 
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                      }}>
+                        Completed
+                      </span>
+                    </div>
+
+                    <h3 style={{ margin: '0 0 10px', fontSize: '1.6rem', color: 'white', fontFamily: 'Oswald, sans-serif', lineHeight: 1.25 }}>
+                      {event.title}
+                    </h3>
+
+                    <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontWeight: 500 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><Calendar size={15} color="var(--saffron-light)" /> {event.date}</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><MapPin size={15} color="var(--saffron-light)" /> {event.location}</span>
+                    </div>
+
+                    <p style={{ fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '22px', color: 'rgba(255,255,255,0.8)' }}>
+                      {event.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Event Register Modal */}
       {selectedEvent && (

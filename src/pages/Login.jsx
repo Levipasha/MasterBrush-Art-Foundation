@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, Eye, EyeOff, LogIn, UserPlus, ArrowRight, ShieldCheck, LogOut, Upload, CreditCard, Building, HeartHandshake, Briefcase, FileText, CheckCircle2, Sparkles, PartyPopper, Check, Hourglass } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, LogIn, UserPlus, ArrowRight, ShieldCheck, LogOut, Upload, CreditCard, Building, HeartHandshake, Briefcase, FileText, CheckCircle2, Sparkles, PartyPopper, Check, Hourglass, Image, Palette, Package } from 'lucide-react';
 import { 
   auth, 
   googleProvider, 
@@ -172,7 +172,7 @@ export default function Login({ setActivePage, triggerToast }) {
         setArtDescription('');
         setArtPrice('');
         setArtImage('');
-        if (triggerToast) triggerToast('🎨 Artwork submitted for Admin approval! Once approved, it will be listed in the shop.');
+        if (triggerToast) triggerToast('Artwork submitted for Admin approval! Once approved, it will be visible in your public profile.');
       } else {
         if (triggerToast) triggerToast(data.message || 'Failed to post artwork.');
       }
@@ -538,7 +538,7 @@ export default function Login({ setActivePage, triggerToast }) {
                 {/* 2. Post New Artwork Form */}
                 <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
                   <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    🎨 Post New Artwork to Portfolio &amp; Shop
+                    <Sparkles size={18} style={{ color: 'var(--accent)' }} /> Post New Artwork to Portfolio
                   </h3>
                   <form onSubmit={handlePostArtwork}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
@@ -627,8 +627,8 @@ export default function Login({ setActivePage, triggerToast }) {
                 {/* 3. My Posted Portfolio Artworks Gallery */}
                 {dbMember?.artworks && dbMember.artworks.length > 0 && (
                   <div>
-                    <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px' }}>
-                      🎨 My Published Portfolio ({dbMember.artworks.length} Items)
+                    <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Palette size={18} style={{ color: 'var(--saffron)' }} /> My Published Portfolio ({dbMember.artworks.length} Items)
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
                       {dbMember.artworks.map((art, idx) => (
@@ -697,7 +697,7 @@ export default function Login({ setActivePage, triggerToast }) {
             {userOrders && userOrders.length > 0 && (
               <div style={{ marginTop: '32px', borderTop: '2px solid var(--border-soft)', paddingTop: '28px', textAlign: 'left' }}>
                 <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.4rem', color: 'var(--navy)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  📦 My Order History & Tracking
+                  <Package size={18} style={{ color: 'var(--navy)' }} /> My Order History &amp; Tracking
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {userOrders.map((order) => (

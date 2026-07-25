@@ -21,6 +21,12 @@ export default function About({ setActivePage }) {
 
   const [aboutInfo, setAboutInfo] = useState(defaultAbout);
   const [loading, setLoading] = useState(true);
+  const [homeStats, setHomeStats] = useState({
+    statYears: '10+',
+    statStudents: '500+',
+    statExhibitions: '50+',
+    statLives: '1000+'
+  });
 
   useEffect(() => {
     const fetchAbout = async () => {
@@ -36,7 +42,19 @@ export default function About({ setActivePage }) {
         setLoading(false);
       }
     };
+    const fetchHomeStats = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/home`);
+        const json = await res.json();
+        if (json.success && json.data) {
+          setHomeStats(json.data);
+        }
+      } catch (err) {
+        console.error("Error fetching home stats:", err);
+      }
+    };
     fetchAbout();
+    fetchHomeStats();
   }, []);
 
   const coreValues = [
@@ -267,19 +285,19 @@ export default function About({ setActivePage }) {
               <div className="founder-title-text">Founder, MasterBrush Art Foundation</div>
               <div style={{ display: 'flex', gap: '16px', marginTop: '24px', flexWrap: 'wrap' }}>
                 <div style={{ textAlign: 'center', background: 'var(--cream-warm)', borderRadius: '12px', padding: '16px 24px' }}>
-                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{aboutInfo.statYears}</div>
+                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{homeStats.statYears}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>Years of Impact</div>
                 </div>
                 <div style={{ textAlign: 'center', background: 'var(--cream-warm)', borderRadius: '12px', padding: '16px 24px' }}>
-                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{aboutInfo.statStudents}</div>
+                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{homeStats.statStudents}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>Students Trained</div>
                 </div>
                 <div style={{ textAlign: 'center', background: 'var(--cream-warm)', borderRadius: '12px', padding: '16px 24px' }}>
-                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{aboutInfo.statExhibitions}</div>
+                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{homeStats.statExhibitions}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>Exhibitions</div>
                 </div>
                 <div style={{ textAlign: 'center', background: 'var(--cream-warm)', borderRadius: '12px', padding: '16px 24px' }}>
-                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{aboutInfo.statLives}</div>
+                  <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 700, color: 'var(--navy)' }}>{homeStats.statLives}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>Lives Touched</div>
                 </div>
               </div>

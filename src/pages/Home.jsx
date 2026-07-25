@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, Sparkles, Heart, Award, Activity, Image, PenTool, Trees, Hand, Coins, Gift, User, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Palette, Sparkles, Heart, Award, Activity, Image, PenTool, Trees, Hand, Coins, Gift, User, Calendar, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CountingNumber } from '../components/ui/counting-number';
 
@@ -10,9 +10,21 @@ export default function Home({ setActivePage }) {
     heroTagline: '✦ Empowering Creativity Since 2025',
     heroTitle: 'MasterBrush Art Foundation',
     heroLogo: '/logo.png',
-    heroVideoUrl: '/about_video.mp4'
+    heroVideoUrl: '/about_video.mp4',
+    statYears: '10+',
+    statStudents: '500+',
+    statExhibitions: '50+',
+    statLives: '1,000+'
   });
   const [activeTab, setActiveTab] = useState('All');
+
+  const parseStat = (val) => {
+    if (!val) return { num: 0, suffix: '+' };
+    const str = String(val).trim();
+    const num = parseInt(str.replace(/[^0-9]/g, ''), 10) || 0;
+    const suffix = str.replace(/[0-9]/g, '') || '';
+    return { num, suffix };
+  };
 
   const [galleryList, setGalleryList] = useState([]);
 
@@ -194,19 +206,31 @@ export default function Home({ setActivePage }) {
         <div className="container">
           <div className="stats-row">
             <div className="stat-card">
-              <div className="stat-num"><CountingNumber target={10} /><span>+</span></div>
+              <div className="stat-num">
+                <CountingNumber target={parseStat(homeConfig.statYears).num} />
+                <span>{parseStat(homeConfig.statYears).suffix || '+'}</span>
+              </div>
               <div className="stat-label">Years of Impact</div>
             </div>
             <div className="stat-card">
-              <div className="stat-num"><CountingNumber target={500} /><span>+</span></div>
+              <div className="stat-num">
+                <CountingNumber target={parseStat(homeConfig.statStudents).num} />
+                <span>{parseStat(homeConfig.statStudents).suffix || '+'}</span>
+              </div>
               <div className="stat-label">Students Trained</div>
             </div>
             <div className="stat-card">
-              <div className="stat-num"><CountingNumber target={50} /><span>+</span></div>
+              <div className="stat-num">
+                <CountingNumber target={parseStat(homeConfig.statExhibitions).num} />
+                <span>{parseStat(homeConfig.statExhibitions).suffix || '+'}</span>
+              </div>
               <div className="stat-label">Exhibitions Held</div>
             </div>
             <div className="stat-card">
-              <div className="stat-num"><CountingNumber target={1000} /><span>+</span></div>
+              <div className="stat-num">
+                <CountingNumber target={parseStat(homeConfig.statLives).num} />
+                <span>{parseStat(homeConfig.statLives).suffix || '+'}</span>
+              </div>
               <div className="stat-label">Lives Touched</div>
             </div>
           </div>
@@ -427,7 +451,7 @@ export default function Home({ setActivePage }) {
                           {event.title}
                         </div>
                         <div className="event-date" style={{ color: 'var(--text-mid)', fontSize: '0.85rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          📍 {event.date} &bull; {event.location || 'Hyderabad'}
+                          <MapPin size={14} style={{ color: 'var(--saffron)' }} /> {event.date} &bull; {event.location || 'Hyderabad'}
                         </div>
                         <span className="event-link" style={{ color: 'var(--saffron)', fontWeight: 600, fontSize: '0.85rem' }}>
                           View Details &rarr;
