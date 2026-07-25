@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Palette, Sparkles, Heart, Award, Activity, Image, PenTool, Trees, Hand, Coins, Gift, User, Calendar, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CountingNumber } from '../components/ui/counting-number';
+import SEO from '../components/SEO';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
@@ -124,6 +125,11 @@ export default function Home({ setActivePage }) {
 
   return (
     <div>
+      <SEO 
+        title="Home" 
+        description="Empowering specially-abled and underprivileged artists by providing quality art education, workshops, exhibitions, and platforms to showcase their talent." 
+        keywords="art education, charity NGO, disabled artists, painting classes, art workshops, Hyderabad art foundation, buy original paintings, donate to art charity"
+      />
       {/* Hero Section */}
       <section className="hero">
         <div className="container">

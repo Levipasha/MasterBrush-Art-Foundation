@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
@@ -45,6 +46,11 @@ export default function Gallery({ setActivePage }) {
 
   return (
     <div>
+      <SEO 
+        title="Art Gallery Showcase" 
+        description="Explore our vibrant gallery showcasing beautiful drawings, acrylic paintings, and sketches created by our talented students and artists." 
+        keywords="exhibition drawings, canvas paintings, charcoal sketches, student artwork showcase, online art gallery"
+      />
       <div className="page-hero">
         <div className="container page-hero-content">
           <div className="breadcrumb"><a onClick={() => setActivePage('home')}>Home</a> › <span>Gallery</span></div>

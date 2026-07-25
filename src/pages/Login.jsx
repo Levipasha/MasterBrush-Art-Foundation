@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, User, Eye, EyeOff, LogIn, UserPlus, ArrowRight, ShieldCheck, LogOut, Upload, CreditCard, Building, HeartHandshake, Briefcase, FileText, CheckCircle2, Sparkles, PartyPopper, Check, Hourglass, Image, Palette, Package } from 'lucide-react';
+import SEO from '../components/SEO';
 import { 
   auth, 
   googleProvider, 
@@ -379,6 +380,11 @@ export default function Login({ setActivePage, triggerToast }) {
 
   return (
     <div style={{ padding: '60px 24px', background: 'var(--cream)', minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <SEO 
+        title={currentUser ? "My Account Studio" : (isLoginTab ? "Login" : "Register")} 
+        description="Sign in to your MasterBrush account to manage your class enrollments, order history, and donation receipts."
+        keywords="user login, register account, student dashboard, customer login"
+      />
       <div style={{ maxWidth: currentUser ? '720px' : '520px', width: '100%' }}>
         
         {/* Breadcrumb */}

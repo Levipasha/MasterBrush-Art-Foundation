@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin, Clock, Compass } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const FacebookIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -110,6 +111,11 @@ export default function Contact({ setActivePage, triggerToast }) {
 
   return (
     <div>
+      <SEO 
+        title="Contact Us" 
+        description="Get in touch with MasterBrush Art Foundation in Hyderabad. Enquire about admissions, volunteer opportunities, workshops, or partnerships." 
+        keywords="contact art foundation, NGO address, volunteer query, art class enquiry, Hyderabad office details"
+      />
       <div className="page-hero">
         <div className="container page-hero-content">
           <div className="breadcrumb"><a onClick={() => setActivePage('home')}>Home</a> › <span>Contact Us</span></div>
@@ -158,10 +164,10 @@ export default function Contact({ setActivePage, triggerToast }) {
                 <p className="eyebrow" style={{ marginBottom: '14px' }}>Follow Us</p>
                 <div className="social-row">
                   <a className="social-btn" style={{ background: 'rgba(26,26,78,0.08)', color: 'var(--navy)' }} href="#"><FacebookIcon size={16} /></a>
-                  <a className="social-btn" style={{ background: 'rgba(226,91,139,0.1)', color: 'var(--pink)' }} href="#"><InstagramIcon size={16} /></a>
+                  <a className="social-btn" style={{ background: 'rgba(226,91,139,0.1)', color: 'var(--pink)' }} href="https://www.instagram.com/masterbrushartfoundation/" target="_blank" rel="noopener noreferrer"><InstagramIcon size={16} /></a>
                   <a className="social-btn" style={{ background: 'rgba(224,42,42,0.1)', color: '#E42020' }} href="#"><YoutubeIcon size={16} /></a>
                   <a className="social-btn" style={{ background: 'rgba(224,42,42,0.08)', color: '#E42020' }} href="#"><Compass size={16} /></a>
-                  <a className="social-btn" style={{ background: 'rgba(43,175,138,0.1)', color: 'var(--green)' }} href="#"><WhatsappIcon size={16} /></a>
+                  <a className="social-btn" style={{ background: 'rgba(43,175,138,0.1)', color: 'var(--green)' }} href="https://chat.whatsapp.com/FFoLfhaCvmkH0BSHT8EpxG?s=cl&p=a&mlu=0&amv=0" target="_blank" rel="noopener noreferrer"><WhatsappIcon size={16} /></a>
                 </div>
               </div>
 

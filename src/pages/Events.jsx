@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Image, PenTool, Trees, Trophy, Calendar, MapPin } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
@@ -134,6 +135,11 @@ export default function Events({ setActivePage, triggerToast }) {
 
   return (
     <div>
+      <SEO 
+        title="Events &amp; Workshops" 
+        description="Join our upcoming art exhibitions, competitions, acrylic painting workshops, and community art retreats designed for all skill levels." 
+        keywords="acrylic workshops, art exhibitions 2025, painting competitions, art retreats, enroll in art classes"
+      />
       <div className="page-hero">
         <div className="container page-hero-content">
           <div className="breadcrumb"><a onClick={() => setActivePage('home')}>Home</a> › <span>Events</span></div>

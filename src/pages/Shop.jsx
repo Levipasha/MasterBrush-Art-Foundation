@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Palette, ShieldCheck, Package, Truck, ShoppingCart } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
@@ -558,6 +559,11 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
 
   return (
     <div>
+      <SEO 
+        title="Art Shop" 
+        description="Support our mission by purchasing original handmade paintings and prints. 100% of proceeds go directly to supporting the artist and our programs." 
+        keywords="buy original paintings, canvas art shop, purchase handmade sketches, buy art online, charity art store"
+      />
       <div className="page-hero">
         <div className="container page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
           <div>

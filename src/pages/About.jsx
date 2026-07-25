@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Target, Sparkles, Heart, Award, Activity, Users, ShieldCheck, CheckCircle } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
@@ -120,6 +121,11 @@ export default function About({ setActivePage }) {
 
   return (
     <div>
+      <SEO 
+        title="About Us" 
+        description="Learn about MasterBrush Art Foundation, our mission of inclusivity, creativity, and empowerment, and how we support our community of artists." 
+        keywords="about NGO, art foundation history, our vision, charity founders, support underprivileged artists"
+      />
       {/* Page Hero */}
       <div className="page-hero">
         <div className="container page-hero-content">

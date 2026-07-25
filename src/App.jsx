@@ -11,6 +11,9 @@ import Shop from './pages/Shop';
 import Login from './pages/Login';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
+
 
 export default function App() {
   const [activePage, setActivePage] = useState('home');
@@ -103,6 +106,10 @@ export default function App() {
         return <Blog setActivePage={setActivePage} triggerToast={triggerToast} />;
       case 'contact':
         return <Contact setActivePage={setActivePage} triggerToast={triggerToast} />;
+      case 'privacy-policy':
+        return <PrivacyPolicy setActivePage={setActivePage} />;
+      case 'terms-conditions':
+        return <TermsConditions setActivePage={setActivePage} />;
       default:
         return <Home setActivePage={setActivePage} />;
     }

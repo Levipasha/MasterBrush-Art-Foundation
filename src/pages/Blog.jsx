@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Palette, Heart, Trees, X, BookOpen, User, Calendar, Clock, ArrowRight, ArrowLeft, Share2, Sparkles } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
@@ -89,6 +90,13 @@ export default function Blog({ setActivePage, triggerToast }) {
   if (selectedPost) {
     return (
       <div style={{ background: 'var(--cream)', minHeight: '100vh', paddingBottom: '80px' }}>
+        <SEO 
+          title={selectedPost.title} 
+          description={selectedPost.excerpt || 'Read our latest article from MasterBrush Art Foundation.'} 
+          keywords={`${selectedPost.category || 'art blog'}, masterbrush blog, success stories, art education`}
+          ogImage={selectedPost.image}
+          ogType="article"
+        />
         {/* Top Header Bar */}
         <div style={{ background: 'white', borderBottom: '1px solid var(--border-soft)', padding: '18px 0' }}>
           <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -278,6 +286,11 @@ export default function Blog({ setActivePage, triggerToast }) {
   // MAIN BLOG LISTING PAGE VIEW
   return (
     <div>
+      <SEO 
+        title="Blog &amp; Stories" 
+        description="Read inspiring stories of healing through art, creative achievements of our students, and articles on art education and therapy." 
+        keywords="art therapy stories, student creative success, art foundation blog, drawing tips, charity news"
+      />
       {/* Page Hero */}
       <div className="page-hero">
         <div className="container page-hero-content">

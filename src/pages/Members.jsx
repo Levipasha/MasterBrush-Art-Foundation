@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Award, Calendar, ExternalLink, X } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
 
@@ -46,6 +47,11 @@ export default function Members({ setActivePage, triggerToast }) {
 
   return (
     <div>
+      <SEO 
+        title="Our Members &amp; Artists" 
+        description="Meet the talented members, students, volunteers, and specially-abled artists who form the core of the MasterBrush Art Foundation community." 
+        keywords="disabled artists profile, art foundation students, volunteer artists, creative team, community members"
+      />
       {/* Page Hero */}
       <div className="page-hero">
         <div className="container page-hero-content">
