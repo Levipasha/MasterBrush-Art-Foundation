@@ -1791,3 +1791,12 @@ p { color: var(--text-mid); }
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 50px 0 62%;
+    background: linear-gradient(180deg, var(--cream) 0%, var(--cream-warm) 40%, rgba(248, 240, 232, 0) 100%), 
+                url('/cta-bg.jpg') bottom center / 100% auto no-repeat;
+  }
+}

@@ -144,14 +144,17 @@ export default function Events({ setActivePage, triggerToast }) {
                   flexDirection: 'column',
                   justifyContent: 'flex-end',
                   background: `url("${event.image}") center/cover no-repeat`,
-                  border: '1px solid var(--border-soft)'
+                  border: '1px solid var(--border-soft)',
+                  maxWidth: '420px',
+                  width: '100%',
+                  margin: activeEvents.length === 1 ? '0 auto' : '0'
                 }}
               >
-                {/* Dark Gradient Overlay for readability */}
+                {/* Lightened Gradient Overlay for better image clarity and readability */}
                 <div style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'linear-gradient(to top, rgba(15,15,48,0.95) 0%, rgba(15,15,48,0.65) 55%, rgba(15,15,48,0.25) 100%)',
+                  background: 'linear-gradient(to top, rgba(15,15,48,0.85) 0%, rgba(15,15,48,0.3) 45%, rgba(15,15,48,0.05) 100%)',
                   zIndex: 1
                 }} />
 

@@ -72,6 +72,10 @@ export default function Login({ setActivePage, triggerToast }) {
   const [artImage, setArtImage] = useState('');
   const [postingArt, setPostingArt] = useState(false);
 
+  // User Orders Tracking States
+  const [userOrders, setUserOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
   // Check database approval status on login or mount
   useEffect(() => {
     if (currentUser && currentUser.email) {
@@ -92,6 +96,24 @@ export default function Login({ setActivePage, triggerToast }) {
       })
       .catch(err => console.error('Login check error:', err))
       .finally(() => setCheckingApproval(false));
+    }
+  }, [currentUser]);
+
+  // Fetch user orders for tracking
+  useEffect(() => {
+    if (currentUser && currentUser.email) {
+      setLoadingOrders(true);
+      fetch(`${API_BASE}/orders/email/${currentUser.email}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            setUserOrders(data.data);
+          }
+        })
+        .catch(err => console.error('Fetch user orders error:', err))
+        .finally(() => setLoadingOrders(false));
+    } else {
+      setUserOrders([]);
     }
   }, [currentUser]);
 
@@ -150,7 +172,7 @@ export default function Login({ setActivePage, triggerToast }) {
         setArtDescription('');
         setArtPrice('');
         setArtImage('');
-        if (triggerToast) triggerToast('🎨 Artwork published to your portfolio & shop successfully!');
+        if (triggerToast) triggerToast('🎨 Artwork submitted for Admin approval! Once approved, it will be listed in the shop.');
       } else {
         if (triggerToast) triggerToast(data.message || 'Failed to post artwork.');
       }
@@ -159,6 +181,30 @@ export default function Login({ setActivePage, triggerToast }) {
       if (triggerToast) triggerToast('Error posting artwork.');
     } finally {
       setPostingArt(false);
+    }
+  };
+
+  const handleUpdateArtworkStatus = async (artworkId, newStatus) => {
+    try {
+      const res = await fetch(`${API_BASE}/members/artworks/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: currentUser.email,
+          artworkId,
+          status: newStatus
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDbMember(data.data);
+        if (triggerToast) triggerToast('Artwork status updated successfully!');
+      } else {
+        if (triggerToast) triggerToast(data.message || 'Failed to update status.');
+      }
+    } catch (err) {
+      console.error(err);
+      if (triggerToast) triggerToast('Error updating artwork status.');
     }
   };
 
@@ -593,13 +639,120 @@ export default function Login({ setActivePage, triggerToast }) {
                           <div style={{ padding: '12px' }}>
                             <h4 style={{ fontSize: '0.9rem', color: 'var(--navy)', margin: '0 0 4px 0' }}>{art.title}</h4>
                             <div style={{ fontSize: '0.78rem', color: 'var(--text-light)', marginBottom: '6px' }}>{art.category}</div>
-                            <div style={{ fontSize: '0.9rem', color: 'var(--saffron)', fontWeight: '700' }}>₹{art.price ? art.price.toLocaleString('en-IN') : 'N/A'}</div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-mid)' }}>Approval:</span>
+                              <span style={{ 
+                                fontSize: '0.72rem', 
+                                padding: '2px 8px', 
+                                borderRadius: '50px', 
+                                background: art.isApproved !== false ? '#E1F6EB' : '#FEF3D6', 
+                                color: art.isApproved !== false ? '#1A7A44' : '#B27600',
+                                fontWeight: 700 
+                              }}>
+                                {art.isApproved !== false ? 'Approved' : 'Pending'}
+                              </span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.9rem', color: 'var(--saffron)', fontWeight: '700' }}>₹{art.price ? art.price.toLocaleString('en-IN') : 'N/A'}</span>
+                              <span style={{ 
+                                fontSize: '0.72rem', 
+                                padding: '2px 8px', 
+                                borderRadius: '50px', 
+                                background: art.status === 'Sold Out' ? '#FCEBEB' : art.status === 'Coming Soon' ? '#FEF3D6' : '#E1F6EB', 
+                                color: art.status === 'Sold Out' ? '#C42424' : art.status === 'Coming Soon' ? '#B27600' : '#1A7A44',
+                                fontWeight: 700 
+                              }}>
+                                {art.status || 'Available'}
+                              </span>
+                            </div>
+                            
+                            {/* Status Selector Dropdown */}
+                            <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid var(--border-soft)' }}>
+                              <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-mid)', marginBottom: '4px', fontWeight: 600 }}>Update Status:</label>
+                              <select 
+                                value={art.status || 'Available'} 
+                                onChange={(e) => handleUpdateArtworkStatus(art.id, e.target.value)}
+                                style={{ width: '100%', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.78rem', color: 'var(--navy)', background: '#F8FAFC' }}
+                              >
+                                <option value="Available">Available</option>
+                                <option value="Sold Out">Sold Out</option>
+                                <option value="Coming Soon">Coming Soon</option>
+                                <option value="Custom Order">Custom Order</option>
+                                <option value="Only 1 Left">Only 1 Left</option>
+                                <option value="Only 2 Left">Only 2 Left</option>
+                              </select>
+                            </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Order History / Tracking Section */}
+            {userOrders && userOrders.length > 0 && (
+              <div style={{ marginTop: '32px', borderTop: '2px solid var(--border-soft)', paddingTop: '28px', textAlign: 'left' }}>
+                <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.4rem', color: 'var(--navy)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  📦 My Order History & Tracking
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {userOrders.map((order) => (
+                    <div 
+                      key={order._id} 
+                      style={{ 
+                        border: '1px solid var(--border-soft)', 
+                        borderRadius: 'var(--radius-md)', 
+                        padding: '18px', 
+                        background: 'var(--cream)', 
+                        boxShadow: 'var(--shadow-soft)' 
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', borderBottom: '1px dashed var(--border-soft)', paddingBottom: '10px', marginBottom: '10px' }}>
+                        <div>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--text-light)', display: 'block' }}>ORDER ID</span>
+                          <span style={{ fontSize: '0.88rem', fontWeight: 'bold', color: 'var(--navy)' }}>{order._id}</span>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--text-light)', display: 'block' }}>STATUS</span>
+                          <span 
+                            style={{ 
+                              fontSize: '0.78rem', 
+                              fontWeight: 'bold', 
+                              padding: '3px 10px', 
+                              borderRadius: '50px', 
+                              background: order.status === 'Confirmed' ? '#E1F6EB' : order.status === 'Cancelled' ? '#FCEBEB' : '#FEF3D6', 
+                              color: order.status === 'Confirmed' ? '#1A7A44' : order.status === 'Cancelled' ? '#C42424' : '#B27600', 
+                              display: 'inline-block' 
+                            }}
+                          >
+                            {order.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-mid)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div>
+                          <strong>Items ordered:</strong>
+                          <ul style={{ paddingLeft: '18px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            {order.items.map((item, idx) => (
+                              <li key={idx}>
+                                {item.name} <span style={{ color: 'var(--text-light)' }}>x{item.quantity}</span> — ₹{(item.price * item.quantity).toLocaleString()}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-soft)', paddingTop: '8px', marginTop: '4px' }}>
+                          <span>Ordered on: {new Date(order.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                          <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--saffron)' }}>Total: ₹{order.total.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

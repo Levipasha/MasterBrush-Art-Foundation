@@ -10,7 +10,7 @@ export default function About({ setActivePage }) {
     storyText2: 'Our mission is to ensure that every individual, regardless of physical ability, financial background, age, or social circumstances, has the opportunity to discover and develop their creative potential. We work closely with underprivileged communities, people with disabilities, children, youth, and aspiring artists to create an environment where creativity knows no boundaries.',
     storyText3: 'Through education, workshops, mentorship, exhibitions, and community engagement, we empower individuals to transform their artistic talents into skills that enrich their lives and open doors to personal and professional opportunities. At MasterBrush Art Foundation, we envision a society where art is not considered a privilege but a right that inspires confidence, inclusion, innovation, and positive social change.',
     storyImage: '/about_foundation.jpg',
-    visionText: 'To build an inclusive world where art is accessible to everyone, empowering underprivileged and differently-abled individuals to express themselves, develop valuable skills, achieve financial independence, and contribute creatively to society.',
+    visionText: 'To create an inclusive world where every individual has the opportunity to discover, develop, and showcase their creative potential through art.',
     founderQuote: 'As an artist and educator, I believe art has the power to heal, inspire and transform lives. Through MasterBrush, I want to create a space where every individual — regardless of age or ability — can discover their unique voice and shine. Thank you for being a part of this beautiful journey.',
     founderImage: '/founder.jpg',
     statYears: '10+',
@@ -72,14 +72,22 @@ export default function About({ setActivePage }) {
     }
   ];
 
+  const visionPoints = [
+    'Art is accessible to everyone, regardless of age, ability, or background.',
+    'Creativity empowers individuals with confidence, skills, and purpose.',
+    'Underprivileged and differently-abled artists receive equal opportunities to grow.',
+    'Traditional and contemporary art forms are preserved and celebrated.',
+    'Art becomes a pathway to financial independence and sustainable livelihoods.',
+    'Communities are united through culture, creativity, and collaboration.'
+  ];
+
   const missionPoints = [
-    'Providing high-quality and affordable art education for people of all backgrounds.',
-    'Organizing inclusive workshops, exhibitions, competitions, and training programs.',
-    'Encouraging creativity as a tool for emotional healing, therapy, and self-expression.',
-    'Supporting emerging artists through mentorship, resources, and exhibition opportunities.',
-    'Creating pathways for artists to generate sustainable income through their creative work.',
-    'Preserving and promoting both traditional and contemporary art forms.',
-    'Building stronger communities by encouraging collaboration through art and culture.'
+    'Delivering affordable, high-quality art education and training.',
+    'Organizing workshops, exhibitions, competitions, and cultural events.',
+    'Promoting art as a tool for self-expression, therapy, and personal development.',
+    'Mentoring emerging artists with guidance, resources, and exposure.',
+    'Creating platforms that help artists earn through their creative work.',
+    'Building an inclusive ecosystem that inspires innovation, collaboration, and lifelong learning.'
   ];
 
   const impactPoints = [
@@ -145,17 +153,31 @@ export default function About({ setActivePage }) {
             <div style={{ background: 'white', padding: '40px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-soft)' }}>
               <div className="mv-icon icon-purple" style={{ marginBottom: '20px' }}><Sparkles size={28} /></div>
               <h3 style={{ fontSize: '1.5rem', fontFamily: "'Playfair Display', serif", color: 'var(--navy)', marginBottom: '16px' }}>Our Vision</h3>
-              <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-mid)' }}>
+              <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-mid)', marginBottom: '20px' }}>
                 {aboutInfo.visionText}
               </p>
+              <p style={{ fontSize: '0.92rem', color: 'var(--text-light)', marginBottom: '20px' }}>
+                We envision a future where:
+              </p>
+              <ul style={{ padding: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {visionPoints.map((point, index) => (
+                  <li key={index} style={{ display: 'flex', gap: '10px', alignItems: 'start', fontSize: '0.9rem', color: 'var(--text-mid)', lineHeight: '1.5' }}>
+                    <span style={{ color: 'var(--purple)', fontWeight: 'bold' }}>✓</span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Mission */}
             <div style={{ background: 'white', padding: '40px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-soft)' }}>
               <div className="mv-icon icon-saffron" style={{ marginBottom: '20px' }}><Target size={28} /></div>
               <h3 style={{ fontSize: '1.5rem', fontFamily: "'Playfair Display', serif", color: 'var(--navy)', marginBottom: '16px' }}>Our Mission</h3>
+              <p style={{ fontSize: '0.95rem', lineHeight: '1.8', color: 'var(--text-mid)', marginBottom: '20px' }}>
+                To empower individuals and strengthen communities by providing opportunities for artistic learning, creative expression, and professional growth.
+              </p>
               <p style={{ fontSize: '0.92rem', color: 'var(--text-light)', marginBottom: '20px' }}>
-                Our mission is to promote creativity, inclusion, and lifelong learning by:
+                We achieve this by:
               </p>
               <ul style={{ padding: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {missionPoints.map((point, index) => (

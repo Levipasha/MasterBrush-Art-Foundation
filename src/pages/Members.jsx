@@ -1,11 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Award, Calendar, ExternalLink } from 'lucide-react';
+import { Users, Award, Calendar, ExternalLink, X } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+
+const InstagramIcon = ({ size = 14 }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
 
 export default function Members({ setActivePage, triggerToast }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeArtist, setActiveArtist] = useState(null);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -57,9 +76,18 @@ export default function Members({ setActivePage, triggerToast }) {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
                     {members.filter(m => m.isFounder || m.role?.toLowerCase().includes('founder')).map(member => (
                       <div key={member._id} style={{ display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-soft)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)', maxWidth: '420px' }}>
-                        <div style={{ height: '360px', overflow: 'hidden', position: 'relative' }}>
-                          <img src={member.image || '/founder.jpg'} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', padding: '16px' }}>
+                        <div style={{ height: '360px', overflow: 'hidden', position: 'relative', background: '#F8FAFC' }}>
+                          <img 
+                            src={member.image || '/founder.jpg'} 
+                            alt="" 
+                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(10px) brightness(0.8)', transform: 'scale(1.1)' }} 
+                          />
+                          <img 
+                            src={member.image || '/founder.jpg'} 
+                            alt={member.name} 
+                            style={{ position: 'relative', width: '100%', height: '100%', objectFit: 'contain', zIndex: 1 }} 
+                          />
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', padding: '16px', zIndex: 2 }}>
                             <span className="status-badge status-pending" style={{ fontSize: '0.75rem' }}>{member.role}</span>
                           </div>
                         </div>
@@ -95,13 +123,15 @@ export default function Members({ setActivePage, triggerToast }) {
                       <div style={{ height: '300px', overflow: 'hidden', position: 'relative', background: '#F8FAFC' }}>
                         <img 
                           src={member.image || '/logo.png'} 
-                          alt={member.name} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          alt="" 
+                          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(10px) brightness(0.8)', transform: 'scale(1.1)' }} 
                         />
-                        <div style={{ position: 'absolute', top: '12px', right: '12px', background: '#E2F0D9', color: '#2E7D32', padding: '4px 12px', borderRadius: '50px', fontSize: '0.72rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          ✓ UDID Verified Artist
-                        </div>
-                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.75))', padding: '16px' }}>
+                        <img 
+                          src={member.image || '/logo.png'} 
+                          alt={member.name} 
+                          style={{ position: 'relative', width: '100%', height: '100%', objectFit: 'contain', zIndex: 1 }} 
+                        />
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.75))', padding: '16px', zIndex: 2 }}>
                           <span style={{ background: 'var(--saffron)', color: 'white', padding: '3px 10px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 600 }}>{member.role || 'Specially-Abled Artist'}</span>
                         </div>
                       </div>
@@ -109,33 +139,22 @@ export default function Members({ setActivePage, triggerToast }) {
                       <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                         <div>
                           <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: 'var(--navy)', marginBottom: '8px' }}>{member.name}</h3>
-                          {member.email && <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '12px' }}>✉ {member.email}</p>}
+                          {member.instagram && (
+                            <p style={{ fontSize: '0.85rem', color: 'var(--accent)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                              <InstagramIcon size={14} /> @{member.instagram}
+                            </p>
+                          )}
                           <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-mid)', marginBottom: '20px' }}>
                             {member.info || 'Passionate artist creating inspiring handcrafted artworks at MasterBrush Art Foundation.'}
                           </p>
+                          <button 
+                            className="btn btn-primary" 
+                            style={{ width: '100%', padding: '10px 0', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: 'auto' }}
+                            onClick={() => setActiveArtist(member)}
+                          >
+                            Explore Art
+                          </button>
                         </div>
-
-                        {/* Artist Created Artworks Portfolio Gallery */}
-                        {member.artworks && member.artworks.length > 0 && (
-                          <div style={{ borderTop: '1px solid var(--border-soft)', paddingTop: '16px', marginTop: '12px' }}>
-                            <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--navy)', marginBottom: '12px', fontWeight: 700 }}>
-                              🎨 Artist Portfolio ({member.artworks.length} Art Pieces):
-                            </h4>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-                              {member.artworks.map((art, idx) => (
-                                <div key={art.id || idx} style={{ border: '1px solid var(--border-soft)', borderRadius: '10px', overflow: 'hidden', background: '#F8FAFC' }}>
-                                  <div style={{ height: '90px', overflow: 'hidden' }}>
-                                    <img src={art.image} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                  </div>
-                                  <div style={{ padding: '8px' }}>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--navy)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.title}</div>
-                                    <div style={{ fontSize: '0.78rem', color: 'var(--saffron)', fontWeight: '700', marginTop: '2px' }}>₹{art.price ? art.price.toLocaleString('en-IN') : 'N/A'}</div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -145,6 +164,84 @@ export default function Members({ setActivePage, triggerToast }) {
           )}
         </div>
       </section>
+      {/* Artist Portfolio Modal */}
+      {activeArtist && (
+        <div 
+          className="lightbox" 
+          onClick={() => setActiveArtist(null)} 
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+        >
+          <div 
+            className="lightbox-content" 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ maxWidth: '800px', width: '90%', maxHeight: '85vh', overflowY: 'auto', padding: '24px', borderRadius: '16px', background: 'white' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-soft)', paddingBottom: '12px' }}>
+              <div>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.6rem', color: 'var(--navy)', margin: 0 }}>
+                  🎨 {activeArtist.name}'s Portfolio
+                </h3>
+                {activeArtist.instagram && (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--accent)', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+                    <InstagramIcon size={14} /> @{activeArtist.instagram}
+                  </p>
+                )}
+              </div>
+              <button 
+                onClick={() => setActiveArtist(null)} 
+                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', borderRadius: '50%', color: 'var(--text-mid)', background: 'var(--cream)' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-mid)', lineHeight: '1.6', marginBottom: '24px', background: '#F8FAFC', padding: '16px', borderRadius: '12px' }}>
+              {activeArtist.info || 'Passionate artist creating inspiring handcrafted artworks at MasterBrush Art Foundation.'}
+            </p>
+
+            {activeArtist.artworks && activeArtist.artworks.filter(art => art.isApproved !== false).length > 0 ? (
+              <div>
+                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--navy)', marginBottom: '16px', fontWeight: 700 }}>
+                  Portfolio Artworks ({activeArtist.artworks.filter(art => art.isApproved !== false).length} Pieces)
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+                  {activeArtist.artworks.filter(art => art.isApproved !== false).map((art, idx) => (
+                    <div key={art.id || idx} style={{ border: '1px solid var(--border-soft)', borderRadius: '12px', overflow: 'hidden', background: '#F8FAFC', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                      <div style={{ height: '140px', overflow: 'hidden', background: '#F1F5F9' }}>
+                        <img src={art.image} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <div>
+                          <h5 style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--navy)', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.title}</h5>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', margin: '0 0 8px 0' }}>{art.category}</p>
+                          {art.description && <p style={{ fontSize: '0.78rem', color: 'var(--text-mid)', lineHeight: '1.4', margin: '0 0 12px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{art.description}</p>}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid var(--border-soft)' }}>
+                          <span style={{ fontSize: '0.9rem', color: 'var(--saffron)', fontWeight: '700' }}>₹{art.price ? art.price.toLocaleString('en-IN') : 'N/A'}</span>
+                          <span style={{ 
+                            fontSize: '0.7rem', 
+                            padding: '2px 6px', 
+                            borderRadius: '50px', 
+                            background: art.status === 'Sold Out' ? '#FCEBEB' : '#E1F6EB', 
+                            color: art.status === 'Sold Out' ? '#C42424' : '#1A7A44',
+                            fontWeight: 700 
+                          }}>
+                            {art.status || 'Available'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p style={{ textAlign: 'center', padding: '40px', color: 'var(--text-light)', fontStyle: 'italic' }}>
+                No portfolio artworks published by this artist yet.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

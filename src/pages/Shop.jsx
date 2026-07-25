@@ -18,6 +18,14 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
   });
   const [submitting, setSubmitting] = useState(false);
 
+  // Order Tracking States
+  const [trackingMode, setTrackingMode] = useState(false);
+  const [trackingEmail, setTrackingEmail] = useState('');
+  const [trackingOtp, setTrackingOtp] = useState('');
+  const [trackingStep, setTrackingStep] = useState(null); // null, 'verify', 'orders'
+  const [trackingSubmitting, setTrackingSubmitting] = useState(false);
+  const [trackedOrders, setTrackedOrders] = useState([]);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -42,6 +50,7 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
     name: p.name,
     price: p.price,
     description: p.description,
+    status: p.status || 'Available',
     element: (
       <img src={p.image || '/logo.png'} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     )
@@ -104,6 +113,256 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
       setSubmitting(false);
     }
   };
+
+  const handleRequestTrackingOtp = async (e) => {
+    e.preventDefault();
+    if (!trackingEmail || !trackingEmail.includes('@')) {
+      triggerToast('Please enter a valid email address');
+      return;
+    }
+
+    setTrackingSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE}/orders/track/request-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trackingEmail })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        triggerToast('OTP code sent successfully to your email');
+        setTrackingStep('verify');
+      } else {
+        triggerToast(data.message || 'No orders found or error occurred.');
+      }
+    } catch (err) {
+      console.error(err);
+      triggerToast('Network error, request failed.');
+    } finally {
+      setTrackingSubmitting(false);
+    }
+  };
+
+  const handleVerifyTrackingOtp = async (e) => {
+    e.preventDefault();
+    if (!trackingOtp || trackingOtp.length < 6) {
+      triggerToast('Please enter a valid 6-digit OTP code');
+      return;
+    }
+
+    setTrackingSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE}/orders/track/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trackingEmail, otp: trackingOtp })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTrackedOrders(data.orders || []);
+        setTrackingStep('orders');
+        triggerToast('Email verified successfully!');
+      } else {
+        triggerToast(data.message || 'Verification failed. Invalid OTP.');
+      }
+    } catch (err) {
+      console.error(err);
+      triggerToast('Network error, verification failed.');
+    } finally {
+      setTrackingSubmitting(false);
+    }
+  };
+
+  if (trackingMode) {
+    return (
+      <div>
+        <div className="page-hero">
+          <div className="container page-hero-content">
+            <div className="breadcrumb">
+              <a onClick={() => setActivePage('home')}>Home</a> › 
+              <a onClick={() => { setTrackingMode(false); setTrackingStep(null); }}>Shop</a> › 
+              <span>Track Order</span>
+            </div>
+            <h1 className="display-hero">Track Your Order</h1>
+            <p>Enter your email address to receive an OTP and check your order status.</p>
+          </div>
+        </div>
+
+        <section className="section">
+          <div className="container" style={{ maxWidth: '600px' }}>
+            <div className="contact-form" style={{ padding: '32px', background: 'white', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-soft)' }}>
+              {!trackingStep ? (
+                // Step 1: Enter Email
+                <form onSubmit={handleRequestTrackingOtp}>
+                  <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.4rem', marginBottom: '16px', color: 'var(--navy)' }}>
+                    Verify Your Email
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-mid)', marginBottom: '24px', lineHeight: '1.5' }}>
+                    To see your order history and status, please enter the email address you used when placing your order. We will send a 6-digit OTP to this email.
+                  </p>
+                  
+                  <div className="form-group">
+                    <label>Email Address *</label>
+                    <input 
+                      type="email" 
+                      value={trackingEmail} 
+                      onChange={(e) => setTrackingEmail(e.target.value)} 
+                      placeholder="your@email.com" 
+                      required 
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                    <button 
+                      type="button" 
+                      className="btn btn-outline" 
+                      style={{ flex: 1 }}
+                      onClick={() => setTrackingMode(false)}
+                    >
+                      Back to Shop
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary" 
+                      style={{ flex: 1, justifyContent: 'center' }}
+                      disabled={trackingSubmitting}
+                    >
+                      {trackingSubmitting ? 'Sending OTP...' : 'Send OTP'}
+                    </button>
+                  </div>
+                </form>
+              ) : trackingStep === 'verify' ? (
+                // Step 2: Enter OTP
+                <form onSubmit={handleVerifyTrackingOtp}>
+                  <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.4rem', marginBottom: '16px', color: 'var(--navy)' }}>
+                    Enter Verification Code
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-mid)', marginBottom: '24px', lineHeight: '1.5' }}>
+                    We sent a 6-digit verification code to <strong>{trackingEmail}</strong>. Please enter the code below to view your orders.
+                  </p>
+                  
+                  <div className="form-group">
+                    <label>6-Digit OTP *</label>
+                    <input 
+                      type="text" 
+                      maxLength="6" 
+                      value={trackingOtp} 
+                      onChange={(e) => setTrackingOtp(e.target.value)} 
+                      placeholder="Enter 6-digit code" 
+                      style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.25rem', fontWeight: 'bold' }}
+                      required 
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                    <button 
+                      type="button" 
+                      className="btn btn-outline" 
+                      style={{ flex: 1 }}
+                      onClick={() => setTrackingStep(null)}
+                    >
+                      Change Email
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary" 
+                      style={{ flex: 1, justifyContent: 'center' }}
+                      disabled={trackingSubmitting}
+                    >
+                      {trackingSubmitting ? 'Verifying...' : 'Verify & Track'}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                // Step 3: Show Orders
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid var(--border-soft)', paddingBottom: '16px', marginBottom: '24px' }}>
+                    <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.4rem', color: 'var(--navy)', margin: 0 }}>
+                      Your Orders
+                    </h3>
+                    <button 
+                      className="btn btn-outline" 
+                      style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+                      onClick={() => {
+                        setTrackingMode(false);
+                        setTrackingStep(null);
+                        setTrackingEmail('');
+                        setTrackingOtp('');
+                        setTrackedOrders([]);
+                      }}
+                    >
+                      Close Tracker
+                    </button>
+                  </div>
+
+                  {trackedOrders.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                      <p style={{ color: 'var(--text-light)', fontStyle: 'italic' }}>No orders found for this email.</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      {trackedOrders.map((order) => (
+                        <div 
+                          key={order._id} 
+                          style={{ 
+                            border: '1px solid var(--border-soft)', 
+                            borderRadius: 'var(--radius-md)', 
+                            padding: '20px', 
+                            background: 'white', 
+                            boxShadow: 'var(--shadow-soft)' 
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', borderBottom: '1px dashed var(--border-soft)', paddingBottom: '12px', marginBottom: '12px' }}>
+                            <div>
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>ORDER ID</div>
+                              <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--navy)' }}>{order._id}</div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-light)' }}>STATUS</div>
+                              <span 
+                                style={{ 
+                                  fontSize: '0.8rem', 
+                                  fontWeight: 'bold', 
+                                  padding: '4px 10px', 
+                                  borderRadius: '50px', 
+                                  background: order.status === 'Confirmed' ? '#E1F6EB' : order.status === 'Cancelled' ? '#FCEBEB' : '#FEF3D6', 
+                                  color: order.status === 'Confirmed' ? '#1A7A44' : order.status === 'Cancelled' ? '#C42424' : '#B27600', 
+                                  display: 'inline-block' 
+                                }}
+                              >
+                                {order.status}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{ fontSize: '0.88rem', color: 'var(--text-mid)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div>
+                              <strong>Products:</strong>
+                              <ul style={{ paddingLeft: '18px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                {order.items.map((item, idx) => (
+                                  <li key={idx}>
+                                    {item.name} <span style={{ color: 'var(--text-light)' }}>x{item.quantity}</span> — ₹{(item.price * item.quantity).toLocaleString()}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-soft)', paddingTop: '10px', marginTop: '4px' }}>
+                              <span><strong>Order Date:</strong> {new Date(order.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                              <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--saffron)' }}>₹{order.total.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   if (orderSuccess) {
     return (
@@ -298,10 +557,27 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
   return (
     <div>
       <div className="page-hero">
-        <div className="container page-hero-content">
-          <div className="breadcrumb"><a onClick={() => setActivePage('home')}>Home</a> › <span>Shop</span></div>
-          <h1 className="display-hero">Shop</h1>
-          <p>Art You Love, Made with Passion — original artworks available to own.</p>
+        <div className="container page-hero-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <div className="breadcrumb"><a onClick={() => setActivePage('home')}>Home</a> › <span>Shop</span></div>
+            <h1 className="display-hero">Shop</h1>
+            <p>Art You Love, Made with Passion — original artworks available to own.</p>
+          </div>
+          <div>
+            <button 
+              className="btn btn-outline" 
+              style={{ borderColor: 'white', color: 'white', background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '50px' }}
+              onClick={() => {
+                setTrackingMode(true);
+                setCheckoutMode(false);
+                setOrderSuccess(null);
+                setTrackingStep(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              📦 Track Your Order
+            </button>
+          </div>
         </div>
       </div>
 
@@ -326,23 +602,93 @@ export default function Shop({ setActivePage, triggerToast, cart, addToCart, cle
               <p style={{ textAlign: 'center', padding: '48px', width: '100%', gridColumn: '1 / -1', color: 'var(--text-light)' }}>No products found in this category. Add new catalog items via the Admin dashboard.</p>
             ) : filteredProducts.map(p => (
               <div key={p.id} className="shop-card">
-                <div className="shop-thumb">
+                <div className="shop-thumb" style={{ position: 'relative' }}>
                   {p.element}
+                  {p.status && p.status !== 'Available' && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      background: p.status === 'Sold Out' ? 'var(--saffron)' : p.status === 'Coming Soon' ? 'var(--orange-soft)' : 'var(--navy)',
+                      color: 'white',
+                      padding: '4px 10px',
+                      borderRadius: '50px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      boxShadow: 'var(--shadow-soft)',
+                      zIndex: 2
+                    }}>
+                      {p.status}
+                    </div>
+                  )}
                 </div>
                 <div className="shop-body">
                   <div className="shop-medium">{p.medium}</div>
                   <div className="shop-name">{p.name}</div>
-                  <div className="shop-price">₹{p.price.toLocaleString()}</div>
-                  <a 
-                    className="btn btn-primary" 
-                    style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem' }}
-                    onClick={() => {
-                      addToCart(p);
-                      triggerToast(`${p.name} added to cart!`);
-                    }}
-                  >
-                    Add to Cart
-                  </a>
+                  <p style={{ 
+                    fontSize: '0.8rem', 
+                    color: 'var(--text-mid)', 
+                    margin: '6px 0 12px 0', 
+                    display: '-webkit-box', 
+                    WebkitLineClamp: '2', 
+                    WebkitBoxOrient: 'vertical', 
+                    overflow: 'hidden', 
+                    lineHeight: '1.4',
+                    height: '2.8em'
+                  }}>
+                    {p.description || 'No description provided.'}
+                  </p>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <div className="shop-price" style={{ margin: 0 }}>₹{p.price.toLocaleString()}</div>
+                    <span style={{ 
+                      fontSize: '0.72rem', 
+                      fontWeight: '700', 
+                      color: p.status === 'Sold Out' ? '#C42424' : p.status === 'Coming Soon' ? '#B27600' : '#1A7A44',
+                      background: p.status === 'Sold Out' ? '#FCEBEB' : p.status === 'Coming Soon' ? '#FEF3D6' : '#E1F6EB',
+                      padding: '2px 8px',
+                      borderRadius: '50px'
+                    }}>
+                      {p.status}
+                    </span>
+                  </div>
+                  
+                  {p.status === 'Sold Out' ? (
+                    <button 
+                      className="btn btn-outline" 
+                      style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem', cursor: 'not-allowed', color: 'var(--text-light)', borderColor: 'var(--border-soft)' }} 
+                      disabled
+                    >
+                      Sold Out
+                    </button>
+                  ) : p.status === 'Coming Soon' ? (
+                    <button 
+                      className="btn btn-outline" 
+                      style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem', cursor: 'not-allowed', color: 'var(--text-light)', borderColor: 'var(--border-soft)' }} 
+                      disabled
+                    >
+                      Coming Soon
+                    </button>
+                  ) : p.status === 'Custom Order' ? (
+                    <a 
+                      className="btn btn-outline" 
+                      style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem' }}
+                      onClick={() => setActivePage('contact')}
+                    >
+                      Inquire Custom
+                    </a>
+                  ) : (
+                    <a 
+                      className="btn btn-primary" 
+                      style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem' }}
+                      onClick={() => {
+                        addToCart(p);
+                        triggerToast(`${p.name} added to cart!`);
+                      }}
+                    >
+                      Add to Cart
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
