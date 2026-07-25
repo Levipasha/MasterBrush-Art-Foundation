@@ -39,7 +39,7 @@ export default function Footer({ setActivePage }) {
         <div className="footer-grid">
           <div className="footer-logo-wrap">
             <div className="footer-logo" style={{ marginBottom: '14px' }}>
-              <img src="/footer_logo.jpeg" alt="MasterBrush Logo" style={{ width: '64px', height: '64px', objectFit: 'contain' }} />
+              <img src="/cropped_circle_image.png" alt="MasterBrush Logo" style={{ width: '64px', height: '64px', objectFit: 'contain' }} />
             </div>
             <p className="footer-desc">An art initiative dedicated to promoting creativity and providing art education for all — including specially-abled artists.</p>
             <div className="footer-tagline">Bringing Art to Every Heart ♡</div>
