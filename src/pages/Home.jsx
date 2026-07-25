@@ -279,33 +279,6 @@ export default function Home({ setActivePage }) {
                   style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
                 >
                   {filteredItems[currentSlide]?.element}
-                  
-                  {/* Title & Info Overlay */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    background: 'linear-gradient(to top, rgba(15,15,48,0.92) 0%, rgba(15,15,48,0.4) 70%, transparent 100%)',
-                    padding: '36px 28px 24px 28px',
-                    color: 'white',
-                    display: 'flex',
-                    justify: 'space-between',
-                    alignItems: 'flex-end',
-                    zIndex: 5
-                  }}>
-                    <div>
-                      <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--saffron-light)', fontWeight: 600 }}>
-                        {filteredItems[currentSlide]?.category || 'Exhibition Artwork'}
-                      </span>
-                      <h3 style={{ fontSize: '1.6rem', color: 'white', margin: '4px 0 0 0', fontFamily: 'Oswald, sans-serif' }}>
-                        {filteredItems[currentSlide]?.title}
-                      </h3>
-                    </div>
-                    <span style={{ fontSize: '0.85rem', background: 'rgba(255,255,255,0.2)', padding: '4px 14px', borderRadius: '50px', backdropFilter: 'blur(8px)', fontWeight: 600 }}>
-                      {currentSlide + 1} / {totalSlides}
-                    </span>
-                  </div>
                 </motion.div>
               </AnimatePresence>
 

@@ -79,10 +79,6 @@ export default function Gallery({ setActivePage }) {
                 onClick={() => setLightboxItem(item)}
               >
                 {item.element}
-                <div className="gallery-overlay">
-                  <span style={{ fontSize: '1rem', fontWeight: '700' }}>{item.title}</span>
-                  <span style={{ fontSize: '0.78rem', opacity: '0.8' }}>{item.medium}</span>
-                </div>
               </div>
             ))}
           </div>
