@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import SEO from '../components/SEO';
 import { Compass, X, ShoppingBag, ArrowLeft } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://ngo-backend-zeta.vercel.app/api'
+);
 
 const InstagramIcon = ({ size = 14 }) => (
   <svg 

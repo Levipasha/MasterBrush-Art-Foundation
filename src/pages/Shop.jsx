@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Palette, ShieldCheck, Package, Truck, ShoppingCart } from 'lucide-react';
 import SEO from '../components/SEO';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://ngo-backend-zeta.vercel.app/api'
+);
 
 export default function Shop({ setActivePage, triggerToast, cart, addToCart, clearCart }) {
   const [dbProducts, setDbProducts] = useState([]);

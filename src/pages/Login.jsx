@@ -10,7 +10,11 @@ import {
   signOut 
 } from '../firebase';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'
+    : 'https://ngo-backend-zeta.vercel.app/api'
+);
 
 export default function Login({ setActivePage, triggerToast }) {
   const [isLoginTab, setIsLoginTab] = useState(true);
@@ -301,15 +305,49 @@ export default function Login({ setActivePage, triggerToast }) {
     }
   };
 
-  // Handle file uploads to Base64 data URL
+  // Handle file uploads to Base64 data URL with robust permission and error handling
   const handleFileUpload = (e, setImageState) => {
-    const file = e.target.files[0];
-    if (file) {
+    try {
+      if (!e.target || !e.target.files) {
+        throw new Error("File input is not supported by this browser.");
+      }
+      const files = e.target.files;
+      if (files.length === 0) {
+        console.warn("File selection cancelled by user.");
+        return;
+      }
+      const file = files[0];
+      
+      // Basic type validation
+      if (!file.type || !file.type.startsWith("image/")) {
+        if (triggerToast) triggerToast("Please select a valid image file.");
+        return;
+      }
+
+      // Max size limit (10MB) to prevent crash
+      if (file.size > 10 * 1024 * 1024) {
+        if (triggerToast) triggerToast("Image is too large. Please select a photo under 10MB.");
+        return;
+      }
+
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageState(reader.result);
+      reader.onload = (event) => {
+        if (event.target && event.target.result) {
+          setImageState(event.target.result);
+        } else {
+          if (triggerToast) triggerToast("Could not read image file.");
+        }
+      };
+      reader.onerror = (err) => {
+        console.error("FileReader error:", err);
+        if (triggerToast) triggerToast("Failed to read file. Please ensure storage access is allowed.");
       };
       reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("File upload error:", err);
+      if (triggerToast) {
+        triggerToast("Access denied or file selection failed. Please check browser permissions.");
+      }
     }
   };
 
@@ -635,7 +673,7 @@ export default function Login({ setActivePage, triggerToast }) {
                       <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '8px' }}>UDID Photo (Front) *</label>
                       <label style={{ display: 'inline-flex', padding: '10px 16px', background: 'var(--navy)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', width: '100%', justifyContent: 'center' }}>
                         Choose Photo
-                        <input type="file" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setUdidFrontImage)} />
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setUdidFrontImage)} />
                       </label>
                       {udidFrontImage && <img src={udidFrontImage} style={{ width: '100%', height: '60px', objectFit: 'cover', borderRadius: '6px', marginTop: '6px', border: '1px solid var(--saffron)' }} />}
                     </div>
@@ -643,7 +681,7 @@ export default function Login({ setActivePage, triggerToast }) {
                       <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '8px' }}>UDID Photo (Back)</label>
                       <label style={{ display: 'inline-flex', padding: '10px 16px', background: 'var(--navy)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', width: '100%', justifyContent: 'center' }}>
                         Choose Photo
-                        <input type="file" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setUdidBackImage)} />
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setUdidBackImage)} />
                       </label>
                       {udidBackImage && <img src={udidBackImage} style={{ width: '100%', height: '60px', objectFit: 'cover', borderRadius: '6px', marginTop: '6px', border: '1px solid var(--saffron)' }} />}
                     </div>
