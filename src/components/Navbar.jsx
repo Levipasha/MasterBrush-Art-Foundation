@@ -70,6 +70,7 @@ export default function Navbar({ activePage, setActivePage, cartCount, toggleCar
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
     { id: 'members', label: 'Members' },
+    { id: 'art', label: 'Art' },
     { id: 'gallery', label: 'Gallery' },
     { id: 'events', label: 'Events' },
     { id: 'shop', label: 'Shop' },

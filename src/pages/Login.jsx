@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, Eye, EyeOff, LogIn, UserPlus, ArrowRight, ShieldCheck, LogOut, Upload, CreditCard, Building, HeartHandshake, Briefcase, FileText, CheckCircle2, Sparkles, PartyPopper, Check, Hourglass, Image, Palette, Package } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, LogIn, UserPlus, ArrowRight, ShieldCheck, LogOut, Upload, CreditCard, Building, HeartHandshake, Briefcase, FileText, CheckCircle2, Sparkles, PartyPopper, Check, Hourglass, Image, Palette, Package, ShoppingBag } from 'lucide-react';
 import SEO from '../components/SEO';
 import { 
   auth, 
@@ -64,14 +64,24 @@ export default function Login({ setActivePage, triggerToast }) {
   // Profile Edit states
   const [bioInput, setBioInput] = useState('');
   const [profilePicInput, setProfilePicInput] = useState('');
+  const [profilePassword, setProfilePassword] = useState('');
 
-  // Post Artwork form states
+  // Post Artwork form states (Portfolio Expo - No Price)
   const [artTitle, setArtTitle] = useState('');
   const [artCategory, setArtCategory] = useState('Paintings');
   const [artDescription, setArtDescription] = useState('');
-  const [artPrice, setArtPrice] = useState('');
   const [artImage, setArtImage] = useState('');
   const [postingArt, setPostingArt] = useState(false);
+
+  // Post Shop Product form states (Shop Listings - With Price)
+  const [shopProdName, setShopProdName] = useState('');
+  const [shopProdCategory, setShopProdCategory] = useState('Paintings');
+  const [shopProdPrice, setShopProdPrice] = useState('');
+  const [shopProdDescription, setShopProdDescription] = useState('');
+  const [shopProdImage, setShopProdImage] = useState('');
+  const [postingShopProd, setPostingShopProd] = useState(false);
+  const [dbProducts, setDbProducts] = useState([]);
+  const [dashboardTab, setDashboardTab] = useState('portfolio'); // 'portfolio' or 'shop'
 
   // User Orders Tracking States
   const [userOrders, setUserOrders] = useState([]);
@@ -93,6 +103,7 @@ export default function Login({ setActivePage, triggerToast }) {
           setIsApproved(!!data.member.isApproved);
           setBioInput(data.member.info || '');
           setProfilePicInput(data.member.image || '');
+          setDbProducts(data.products || []);
         }
       })
       .catch(err => console.error('Login check error:', err))
@@ -123,20 +134,25 @@ export default function Login({ setActivePage, triggerToast }) {
     e.preventDefault();
     if (!currentUser || !currentUser.email) return;
     try {
+      const payload = {
+        email: currentUser.email,
+        name: currentUser.name,
+        info: bioInput,
+        image: profilePicInput
+      };
+      if (profilePassword) {
+        payload.password = profilePassword;
+      }
       const res = await fetch(`${API_BASE}/members/profile/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: currentUser.email,
-          name: currentUser.name,
-          info: bioInput,
-          image: profilePicInput
-        })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
         setDbMember(data.data);
-        if (triggerToast) triggerToast('Artist profile & photo updated successfully!');
+        setProfilePassword('');
+        if (triggerToast) triggerToast('Artist profile & details updated successfully!');
       }
     } catch (err) {
       console.error(err);
@@ -144,11 +160,11 @@ export default function Login({ setActivePage, triggerToast }) {
     }
   };
 
-  // Handle Post Artwork
+  // Handle Post Artwork (Portfolio Expo - No Price)
   const handlePostArtwork = async (e) => {
     e.preventDefault();
-    if (!artTitle || !artPrice || !artImage) {
-      if (triggerToast) triggerToast('Please enter artwork title, price, and upload art photo.');
+    if (!artTitle || !artImage) {
+      if (triggerToast) triggerToast('Please enter artwork title and upload art photo.');
       return;
     }
 
@@ -162,7 +178,7 @@ export default function Login({ setActivePage, triggerToast }) {
           title: artTitle,
           category: artCategory,
           description: artDescription,
-          price: Number(artPrice),
+          price: 0, // Portfolio artworks are just for display
           image: artImage
         })
       });
@@ -171,9 +187,8 @@ export default function Login({ setActivePage, triggerToast }) {
         setDbMember(data.data);
         setArtTitle('');
         setArtDescription('');
-        setArtPrice('');
         setArtImage('');
-        if (triggerToast) triggerToast('Artwork submitted for Admin approval! Once approved, it will be visible in your public profile.');
+        if (triggerToast) triggerToast('Portfolio artwork submitted for Admin approval! Once approved, it will be visible in your public profile.');
       } else {
         if (triggerToast) triggerToast(data.message || 'Failed to post artwork.');
       }
@@ -182,6 +197,83 @@ export default function Login({ setActivePage, triggerToast }) {
       if (triggerToast) triggerToast('Error posting artwork.');
     } finally {
       setPostingArt(false);
+    }
+  };
+
+  // Handle Post Shop Product (For Sale - With Price)
+  const handlePostShopProduct = async (e) => {
+    e.preventDefault();
+    if (!shopProdName || !shopProdPrice || !shopProdImage) {
+      if (triggerToast) triggerToast('Please enter product title, price, and upload product photo.');
+      return;
+    }
+
+    setPostingShopProd(true);
+    try {
+      const res = await fetch(`${API_BASE}/members/shop/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: currentUser.email,
+          name: shopProdName,
+          category: shopProdCategory,
+          price: Number(shopProdPrice),
+          description: shopProdDescription,
+          image: shopProdImage
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShopProdName('');
+        setShopProdPrice('');
+        setShopProdDescription('');
+        setShopProdImage('');
+        
+        // Refresh products list
+        const checkRes = await fetch(`${API_BASE}/members/login-check`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentUser.email })
+        });
+        const checkData = await checkRes.json();
+        if (checkData.success) {
+          setDbProducts(checkData.products || []);
+        }
+
+        if (triggerToast) triggerToast('Shop product submitted for Admin approval! Once approved, it will go live in the Shop Catalog.');
+      } else {
+        if (triggerToast) triggerToast(data.message || 'Failed to post shop product.');
+      }
+    } catch (err) {
+      console.error(err);
+      if (triggerToast) triggerToast('Error posting shop product.');
+    } finally {
+      setPostingShopProd(false);
+    }
+  };
+
+  // Handle Delete Shop Product
+  const handleDeleteShopProduct = async (productId) => {
+    if (!window.confirm('Are you sure you want to remove this shop product listing?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/members/shop/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: currentUser.email,
+          productId
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDbProducts(dbProducts.filter(p => p._id !== productId));
+        if (triggerToast) triggerToast('Shop listing removed successfully!');
+      } else {
+        if (triggerToast) triggerToast(data.message || 'Failed to remove shop listing.');
+      }
+    } catch (err) {
+      console.error(err);
+      if (triggerToast) triggerToast('Error deleting shop product.');
     }
   };
 
@@ -274,27 +366,33 @@ export default function Login({ setActivePage, triggerToast }) {
     }
     setLoading(true);
     try {
-      const result = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-      const user = result.user;
-      const userData = {
-        name: user.displayName || loginEmail.split('@')[0],
-        email: user.email,
-        role: 'Member',
-        uid: user.uid
-      };
-      localStorage.setItem('ngo_user', JSON.stringify(userData));
-      setCurrentUser(userData);
-      if (triggerToast) triggerToast(`Welcome back, ${userData.name}!`);
+      const res = await fetch(`${API_BASE}/members/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword })
+      });
+      const data = await res.json();
+      if (data.success && data.member) {
+        const userData = {
+          name: data.member.name,
+          email: data.member.email,
+          role: 'Member',
+          uid: data.member._id
+        };
+        localStorage.setItem('ngo_user', JSON.stringify(userData));
+        setCurrentUser(userData);
+        setDbMember(data.member);
+        setIsApproved(!!data.member.isApproved);
+        setBioInput(data.member.info || '');
+        setProfilePicInput(data.member.image || '');
+        setDbProducts(data.products || []);
+        if (triggerToast) triggerToast(`Welcome back, ${data.member.name}!`);
+      } else {
+        if (triggerToast) triggerToast(data.message || 'Invalid email or password.');
+      }
     } catch (error) {
-      console.warn('Firebase auth fallback to local login:', error);
-      const user = {
-        name: loginEmail.split('@')[0] || 'User',
-        email: loginEmail,
-        role: 'Member'
-      };
-      localStorage.setItem('ngo_user', JSON.stringify(user));
-      setCurrentUser(user);
-      if (triggerToast) triggerToast(`Welcome back, ${user.name}!`);
+      console.error('Login error:', error);
+      if (triggerToast) triggerToast('Server error during login.');
     } finally {
       setLoading(false);
     }
@@ -441,7 +539,152 @@ export default function Login({ setActivePage, triggerToast }) {
             </div>
 
             {/* Beautiful Thank You & Pending Approval Banner */}
-            {!isApproved && currentUser.role === 'Member' ? (
+            {/* Case A: Logged in but has no MongoDB member record yet */}
+            {currentUser.role === 'Member' && !dbMember ? (
+              <div style={{
+                background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
+                border: '2px solid #FDBA74',
+                padding: '32px 24px',
+                borderRadius: '20px',
+                marginBottom: '28px',
+                textAlign: 'center',
+                boxShadow: '0 10px 25px -5px rgba(251, 146, 60, 0.15)'
+              }}>
+                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.45rem', color: '#9A3412', marginBottom: '8px', fontWeight: 700 }}>
+                  Complete Artist Registration
+                </h3>
+                <p style={{ fontSize: '0.88rem', color: '#C2410C', lineHeight: '1.6', marginBottom: '24px' }}>
+                  Your account is logged in, but you haven't completed your artist registration yet. Please provide your UDID card details below to submit your application for review.
+                </p>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!udidNumber || !udidFrontImage) {
+                    if (triggerToast) triggerToast('Please enter your UDID Card number and upload front photo.');
+                    return;
+                  }
+                  setCheckingApproval(true);
+                  const payload = {
+                    name: currentUser.name,
+                    email: currentUser.email,
+                    role: 'Member',
+                    udidNumber,
+                    disabilityType,
+                    udidFrontImage,
+                    udidBackImage
+                  };
+                  try {
+                    const res = await fetch(`${API_BASE}/members/register`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      setDbMember(data.data);
+                      setIsApproved(false);
+                      if (triggerToast) triggerToast('Registration completed and submitted for review!');
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    if (triggerToast) triggerToast('Registration failed. Please try again.');
+                  } finally {
+                    setCheckingApproval(false);
+                  }
+                }}
+                style={{ textAlign: 'left' }}
+                >
+                  <div className="form-group">
+                    <label style={{ color: 'var(--navy)', fontWeight: 600 }}>UDID Card Number *</label>
+                    <input 
+                      type="text" 
+                      value={udidNumber} 
+                      onChange={(e) => setUdidNumber(e.target.value)} 
+                      required 
+                      placeholder="e.g. MH1234567890" 
+                      style={{ background: 'white', width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label style={{ color: 'var(--navy)', fontWeight: 600 }}>Disability Type *</label>
+                    <select 
+                      value={disabilityType} 
+                      onChange={(e) => setDisabilityType(e.target.value)} 
+                      style={{ background: 'white', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', width: '100%' }}
+                    >
+                      <option value="Locomotor Disability">Locomotor Disability</option>
+                      <option value="Visual Impairment">Visual Impairment</option>
+                      <option value="Hearing Impairment">Hearing Impairment</option>
+                      <option value="Speech and Language Disability">Speech and Language Disability</option>
+                      <option value="Intellectual Disability">Intellectual Disability</option>
+                      <option value="Mental Illness">Mental Illness</option>
+                      <option value="Autism Spectrum Disorder">Autism Spectrum Disorder</option>
+                      <option value="Multiple Sclerosis">Multiple Sclerosis</option>
+                      <option value="Parkinson's Disease">Parkinson's Disease</option>
+                      <option value="Hemophilia">Hemophilia</option>
+                      <option value="Thalassemia">Thalassemia</option>
+                      <option value="Sickle Cell Disease">Sickle Cell Disease</option>
+                      <option value="Multiple Disabilities">Multiple Disabilities</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '8px' }}>UDID Photo (Front) *</label>
+                      <label style={{ display: 'inline-flex', padding: '10px 16px', background: 'var(--navy)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', width: '100%', justifyContent: 'center' }}>
+                        Choose Photo
+                        <input type="file" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setUdidFrontImage)} />
+                      </label>
+                      {udidFrontImage && <img src={udidFrontImage} style={{ width: '100%', height: '60px', objectFit: 'cover', borderRadius: '6px', marginTop: '6px', border: '1px solid var(--saffron)' }} />}
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '8px' }}>UDID Photo (Back)</label>
+                      <label style={{ display: 'inline-flex', padding: '10px 16px', background: 'var(--navy)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', width: '100%', justifyContent: 'center' }}>
+                        Choose Photo
+                        <input type="file" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setUdidBackImage)} />
+                      </label>
+                      {udidBackImage && <img src={udidBackImage} style={{ width: '100%', height: '60px', objectFit: 'cover', borderRadius: '6px', marginTop: '6px', border: '1px solid var(--saffron)' }} />}
+                    </div>
+                  </div>
+
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px 0', fontSize: '0.9rem', fontWeight: '700' }}>
+                    Complete Registration
+                  </button>
+                </form>
+
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('ngo_user');
+                    setCurrentUser(null);
+                  }}
+                  className="btn btn-outline"
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px 0', 
+                    fontSize: '0.88rem', 
+                    marginTop: '16px', 
+                    border: '2px solid var(--saffron)', 
+                    color: 'var(--saffron)',
+                    background: 'white',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--saffron)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.color = 'var(--saffron)';
+                  }}
+                >
+                  Log Out / Switch Account
+                </button>
+              </div>
+            ) : dbMember && !isApproved && currentUser.role === 'Member' ? (
+              /* Case B: Registered but pending approval */
               <div style={{
                 background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
                 border: '2px solid #FDBA74',
@@ -535,166 +778,350 @@ export default function Login({ setActivePage, triggerToast }) {
                       />
                     </div>
 
+                    <div style={{ marginBottom: '14px' }}>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '6px' }}>
+                        Change Password (Leave blank to keep current)
+                      </label>
+                      <input 
+                        type="password" 
+                        value={profilePassword} 
+                        onChange={(e) => setProfilePassword(e.target.value)} 
+                        placeholder="Enter new password"
+                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                      />
+                    </div>
+
                     <button type="submit" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
                       Save Profile &amp; Bio
                     </button>
                   </form>
                 </div>
 
-                {/* 2. Post New Artwork Form */}
-                <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                  <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Sparkles size={18} style={{ color: 'var(--accent)' }} /> Post New Artwork to Portfolio
-                  </h3>
-                  <form onSubmit={handlePostArtwork}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
-                          Artwork Title *
-                        </label>
-                        <input 
-                          type="text" 
-                          value={artTitle} 
-                          onChange={(e) => setArtTitle(e.target.value)} 
-                          placeholder="e.g. Peacock Canvas" 
-                          required 
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
-                          Price (₹) *
-                        </label>
-                        <input 
-                          type="number" 
-                          value={artPrice} 
-                          onChange={(e) => setArtPrice(e.target.value)} 
-                          placeholder="e.g. 2500" 
-                          required 
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
-                          Category *
-                        </label>
-                        <select 
-                          value={artCategory} 
-                          onChange={(e) => setArtCategory(e.target.value)}
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
-                        >
-                          <option value="Paintings">Paintings</option>
-                          <option value="Pebble Art">Pebble Art</option>
-                          <option value="Handmade Art">Handmade Art</option>
-                          <option value="Crafts">Crafts</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
-                          Artwork Photo *
-                        </label>
-                        <label style={{ display: 'inline-flex', padding: '8px 14px', background: 'var(--navy)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: '600' }}>
-                          <Upload size={14} style={{ marginRight: '6px' }} /> Upload Art Photo
-                          <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setArtImage)} />
-                        </label>
-                      </div>
-                    </div>
-
-                    {artImage && (
-                      <div style={{ marginBottom: '12px' }}>
-                        <img src={artImage} alt="Preview" style={{ height: '80px', width: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-soft)' }} />
-                      </div>
-                    )}
-
-                    <div style={{ marginBottom: '14px' }}>
-                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
-                        Artwork Description
-                      </label>
-                      <textarea 
-                        rows={2} 
-                        value={artDescription} 
-                        onChange={(e) => setArtDescription(e.target.value)} 
-                        placeholder="Medium used, canvas dimensions, story behind artwork..."
-                        style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
-                      />
-                    </div>
-
-                    <button type="submit" disabled={postingArt} className="btn btn-accent" style={{ padding: '10px 20px', fontSize: '0.88rem', fontWeight: 700 }}>
-                      {postingArt ? 'Publishing Artwork...' : '+ Post Artwork to Portfolio & Shop Catalog'}
-                    </button>
-                  </form>
+                {/* Tab Switcher */}
+                <div style={{ display: 'flex', gap: '12px', borderBottom: '2px solid var(--border-soft)', paddingBottom: '8px', marginBottom: '8px' }}>
+                  <button 
+                    type="button"
+                    onClick={() => setDashboardTab('portfolio')}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '8px 16px',
+                      cursor: 'pointer',
+                      fontFamily: 'Oswald, sans-serif',
+                      fontSize: '1.05rem',
+                      color: dashboardTab === 'portfolio' ? 'var(--saffron)' : 'var(--text-mid)',
+                      borderBottom: dashboardTab === 'portfolio' ? '3px solid var(--saffron)' : 'none',
+                      fontWeight: 600
+                    }}
+                  >
+                    My Portfolio Expo (Display Only)
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setDashboardTab('shop')}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '8px 16px',
+                      cursor: 'pointer',
+                      fontFamily: 'Oswald, sans-serif',
+                      fontSize: '1.05rem',
+                      color: dashboardTab === 'shop' ? 'var(--saffron)' : 'var(--text-mid)',
+                      borderBottom: dashboardTab === 'shop' ? '3px solid var(--saffron)' : 'none',
+                      fontWeight: 600
+                    }}
+                  >
+                    My Shop Listings (For Sale)
+                  </button>
                 </div>
 
-                {/* 3. My Posted Portfolio Artworks Gallery */}
-                {dbMember?.artworks && dbMember.artworks.length > 0 && (
-                  <div>
-                    <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Palette size={18} style={{ color: 'var(--saffron)' }} /> My Published Portfolio ({dbMember.artworks.length} Items)
-                    </h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
-                      {dbMember.artworks.map((art, idx) => (
-                        <div key={art.id || idx} style={{ border: '1px solid var(--border-soft)', borderRadius: '12px', overflow: 'hidden', background: 'white' }}>
-                          <div style={{ height: '130px', overflow: 'hidden' }}>
-                            <img src={art.image} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {/* 2. Portfolio Expo Tab */}
+                {dashboardTab === 'portfolio' && (
+                  <>
+                    {/* Post New Artwork Form */}
+                    <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+                      <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Sparkles size={18} style={{ color: 'var(--accent)' }} /> Post New Artwork to Portfolio Expo
+                      </h3>
+                      <form onSubmit={handlePostArtwork}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                              Artwork Title *
+                            </label>
+                            <input 
+                              type="text" 
+                              value={artTitle} 
+                              onChange={(e) => setArtTitle(e.target.value)} 
+                              placeholder="e.g. Peacock Canvas" 
+                              required 
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                            />
                           </div>
-                          <div style={{ padding: '12px' }}>
-                            <h4 style={{ fontSize: '0.9rem', color: 'var(--navy)', margin: '0 0 4px 0' }}>{art.title}</h4>
-                            <div style={{ fontSize: '0.78rem', color: 'var(--text-light)', marginBottom: '6px' }}>{art.category}</div>
-                            
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                              <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-mid)' }}>Approval:</span>
-                              <span style={{ 
-                                fontSize: '0.72rem', 
-                                padding: '2px 8px', 
-                                borderRadius: '50px', 
-                                background: art.isApproved !== false ? '#E1F6EB' : '#FEF3D6', 
-                                color: art.isApproved !== false ? '#1A7A44' : '#B27600',
-                                fontWeight: 700 
-                              }}>
-                                {art.isApproved !== false ? 'Approved' : 'Pending'}
-                              </span>
-                            </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: '0.9rem', color: 'var(--saffron)', fontWeight: '700' }}>₹{art.price ? art.price.toLocaleString('en-IN') : 'N/A'}</span>
-                              <span style={{ 
-                                fontSize: '0.72rem', 
-                                padding: '2px 8px', 
-                                borderRadius: '50px', 
-                                background: art.status === 'Sold Out' ? '#FCEBEB' : art.status === 'Coming Soon' ? '#FEF3D6' : '#E1F6EB', 
-                                color: art.status === 'Sold Out' ? '#C42424' : art.status === 'Coming Soon' ? '#B27600' : '#1A7A44',
-                                fontWeight: 700 
-                              }}>
-                                {art.status || 'Available'}
-                              </span>
-                            </div>
-                            
-                            {/* Status Selector Dropdown */}
-                            <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid var(--border-soft)' }}>
-                              <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-mid)', marginBottom: '4px', fontWeight: 600 }}>Update Status:</label>
-                              <select 
-                                value={art.status || 'Available'} 
-                                onChange={(e) => handleUpdateArtworkStatus(art.id, e.target.value)}
-                                style={{ width: '100%', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.78rem', color: 'var(--navy)', background: '#F8FAFC' }}
-                              >
-                                <option value="Available">Available</option>
-                                <option value="Sold Out">Sold Out</option>
-                                <option value="Coming Soon">Coming Soon</option>
-                                <option value="Custom Order">Custom Order</option>
-                                <option value="Only 1 Left">Only 1 Left</option>
-                                <option value="Only 2 Left">Only 2 Left</option>
-                              </select>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                              Category *
+                            </label>
+                            <select 
+                              value={artCategory} 
+                              onChange={(e) => setArtCategory(e.target.value)}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                            >
+                              <option value="Paintings">Paintings</option>
+                              <option value="Pebble Art">Pebble Art</option>
+                              <option value="Handmade Art">Handmade Art</option>
+                              <option value="Crafts">Crafts</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                              Artwork Photo *
+                            </label>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                              <label style={{ display: 'inline-flex', padding: '8px 14px', background: 'var(--navy)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: '600' }}>
+                                <Upload size={14} style={{ marginRight: '6px' }} /> Upload Art Photo
+                                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setArtImage)} />
+                              </label>
+                              {artImage && (
+                                <span style={{ fontSize: '0.78rem', color: '#16a34a', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Check size={14} /> Photo Selected</span>
+                              )}
                             </div>
                           </div>
                         </div>
-                      ))}
+
+                        {artImage && (
+                          <div style={{ marginBottom: '12px' }}>
+                            <img src={artImage} alt="Preview" style={{ height: '80px', width: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-soft)' }} />
+                          </div>
+                        )}
+
+                        <div style={{ marginBottom: '14px' }}>
+                          <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                            Artwork Description
+                          </label>
+                          <textarea 
+                            rows={2} 
+                            value={artDescription} 
+                            onChange={(e) => setArtDescription(e.target.value)} 
+                            placeholder="Medium used, canvas dimensions, style, description..."
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                          />
+                        </div>
+
+                        <button type="submit" disabled={postingArt} className="btn btn-accent" style={{ padding: '10px 20px', fontSize: '0.88rem', fontWeight: 700 }}>
+                          {postingArt ? 'Publishing Artwork...' : '+ Post Artwork to Portfolio Expo'}
+                        </button>
+                      </form>
                     </div>
-                  </div>
+
+                    {/* My Posted Portfolio Artworks Gallery */}
+                    {dbMember?.artworks && dbMember.artworks.length > 0 && (
+                      <div>
+                        <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Palette size={18} style={{ color: 'var(--saffron)' }} /> My Published Portfolio Expo ({dbMember.artworks.length} Items)
+                        </h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
+                          {dbMember.artworks.map((art, idx) => (
+                            <div key={art.id || idx} style={{ border: '1px solid var(--border-soft)', borderRadius: '12px', overflow: 'hidden', background: 'white' }}>
+                              <div style={{ height: '130px', overflow: 'hidden' }}>
+                                <img src={art.image} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              </div>
+                              <div style={{ padding: '12px' }}>
+                                <h4 style={{ fontSize: '0.9rem', color: 'var(--navy)', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.title}</h4>
+                                <div style={{ fontSize: '0.78rem', color: 'var(--text-light)', marginBottom: '8px' }}>{art.category}</div>
+                                <p style={{ fontSize: '0.78rem', color: 'var(--text-mid)', margin: '0 0 8px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{art.description || 'No description provided.'}</p>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-soft)', paddingTop: '8px', marginTop: '8px' }}>
+                                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-mid)' }}>Approval:</span>
+                                  <span style={{ 
+                                    fontSize: '0.72rem', 
+                                    padding: '2px 8px', 
+                                    borderRadius: '50px', 
+                                    background: art.isApproved !== false ? '#E1F6EB' : '#FEF3D6', 
+                                    color: art.isApproved !== false ? '#1A7A44' : '#B27600',
+                                    fontWeight: 700 
+                                  }}>
+                                    {art.isApproved !== false ? 'Approved' : 'Pending'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* 3. Shop Listings Tab */}
+                {dashboardTab === 'shop' && (
+                  <>
+                    {/* Post Shop Product Form */}
+                    <div style={{ background: '#FDFBF7', padding: '24px', borderRadius: '16px', border: '1px solid var(--saffron-pale)' }}>
+                      <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Package size={18} style={{ color: 'var(--saffron)' }} /> Post New Artwork for Sale (Shop Catalog)
+                      </h3>
+                      <form onSubmit={handlePostShopProduct}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                              Product Name / Title *
+                            </label>
+                            <input 
+                              type="text" 
+                              value={shopProdName} 
+                              onChange={(e) => setShopProdName(e.target.value)} 
+                              placeholder="e.g. Peacock Canvas (For Sale)" 
+                              required 
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                            />
+                          </div>
+
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                              Price (₹) *
+                            </label>
+                            <input 
+                              type="number" 
+                              value={shopProdPrice} 
+                              onChange={(e) => setShopProdPrice(e.target.value)} 
+                              placeholder="e.g. 2500" 
+                              required 
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                              Category *
+                            </label>
+                            <select 
+                              value={shopProdCategory} 
+                              onChange={(e) => setShopProdCategory(e.target.value)}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                            >
+                              <option value="Paintings">Paintings</option>
+                              <option value="Pebble Art">Pebble Art</option>
+                              <option value="Handmade Art">Handmade Art</option>
+                              <option value="Crafts">Crafts</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                              Product Photo *
+                            </label>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                              <label style={{ display: 'inline-flex', padding: '8px 14px', background: 'var(--navy)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: '600' }}>
+                                <Upload size={14} style={{ marginRight: '6px' }} /> Upload Product Photo
+                                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, setShopProdImage)} />
+                              </label>
+                              {shopProdImage && (
+                                <span style={{ fontSize: '0.78rem', color: '#16a34a', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Check size={14} /> Photo Selected</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {shopProdImage && (
+                          <div style={{ marginBottom: '12px' }}>
+                            <img src={shopProdImage} alt="Preview" style={{ height: '80px', width: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-soft)' }} />
+                          </div>
+                        )}
+
+                        <div style={{ marginBottom: '14px' }}>
+                          <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--navy)', marginBottom: '4px' }}>
+                            Product Description *
+                          </label>
+                          <textarea 
+                            rows={2} 
+                            value={shopProdDescription} 
+                            onChange={(e) => setShopProdDescription(e.target.value)} 
+                            placeholder="Describe dimensions, materials used, shipping details..."
+                            required
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-soft)', fontSize: '0.88rem' }}
+                          />
+                        </div>
+
+                        <button type="submit" disabled={postingShopProd} className="btn btn-primary" style={{ padding: '10px 20px', fontSize: '0.88rem', fontWeight: 700 }}>
+                          {postingShopProd ? 'Publishing Product...' : '+ Post Product to Shop Catalog'}
+                        </button>
+                      </form>
+                    </div>
+
+                    {/* My Posted Shop Products Gallery */}
+                    <div>
+                      <h3 style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.25rem', color: 'var(--navy)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ShoppingBag size={18} style={{ color: 'var(--saffron)' }} /> My Shop Catalog Items ({dbProducts.length} Items)
+                      </h3>
+                      {dbProducts.length === 0 ? (
+                        <p style={{ fontStyle: 'italic', color: 'var(--text-light)', padding: '16px', background: 'white', borderRadius: '8px', border: '1px solid var(--border-soft)' }}>
+                          No shop listings created yet. Post a product above to sell!
+                        </p>
+                      ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
+                          {dbProducts.map((prod) => (
+                            <div key={prod._id} style={{ border: '1px solid var(--border-soft)', borderRadius: '12px', overflow: 'hidden', background: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                              <div>
+                                <div style={{ height: '130px', overflow: 'hidden' }}>
+                                  <img src={prod.image} alt={prod.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                                <div style={{ padding: '12px' }}>
+                                  <h4 style={{ fontSize: '0.9rem', color: 'var(--navy)', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prod.name}</h4>
+                                  <div style={{ fontSize: '0.78rem', color: 'var(--text-light)', marginBottom: '6px' }}>{prod.category}</div>
+                                  <div style={{ fontSize: '0.9rem', color: 'var(--saffron)', fontWeight: '700', marginBottom: '8px' }}>₹{prod.price.toLocaleString('en-IN')}</div>
+                                  
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-mid)' }}>Approval:</span>
+                                    <span style={{ 
+                                      fontSize: '0.72rem', 
+                                      padding: '2px 8px', 
+                                      borderRadius: '50px', 
+                                      background: prod.isApproved !== false ? '#E1F6EB' : '#FEF3D6', 
+                                      color: prod.isApproved !== false ? '#1A7A44' : '#B27600',
+                                      fontWeight: 700 
+                                    }}>
+                                      {prod.isApproved !== false ? 'Approved' : 'Pending'}
+                                    </span>
+                                  </div>
+
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-mid)' }}>Status:</span>
+                                    <span style={{ 
+                                      fontSize: '0.72rem', 
+                                      padding: '2px 8px', 
+                                      borderRadius: '50px', 
+                                      background: prod.status === 'Sold Out' ? '#FCEBEB' : prod.status === 'Coming Soon' ? '#FEF3D6' : '#E1F6EB', 
+                                      color: prod.status === 'Sold Out' ? '#C42424' : prod.status === 'Coming Soon' ? '#B27600' : '#1A7A44',
+                                      fontWeight: 700 
+                                    }}>
+                                      {prod.status || 'Available'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div style={{ padding: '12px', paddingTop: 0 }}>
+                                <button 
+                                  type="button" 
+                                  onClick={() => handleDeleteShopProduct(prod._id)}
+                                  className="btn btn-outline" 
+                                  style={{ width: '100%', padding: '6px 0', fontSize: '0.78rem', borderColor: 'var(--accent)', color: 'var(--accent)', marginTop: '8px' }}
+                                >
+                                  Delete Shop Item
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
             )}

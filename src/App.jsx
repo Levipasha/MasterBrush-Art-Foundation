@@ -13,10 +13,13 @@ import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
+import Art from './pages/Art';
+import ArtistPortfolio from './pages/ArtistPortfolio';
 
 
 export default function App() {
   const [activePage, setActivePage] = useState('home');
+  const [selectedArtist, setSelectedArtist] = useState(null);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
@@ -85,7 +88,11 @@ export default function App() {
       case 'about':
         return <About setActivePage={setActivePage} />;
       case 'members':
-        return <Members setActivePage={setActivePage} triggerToast={triggerToast} />;
+        return <Members setActivePage={setActivePage} setSelectedArtist={setSelectedArtist} triggerToast={triggerToast} />;
+      case 'art':
+        return <Art setActivePage={setActivePage} setSelectedArtist={setSelectedArtist} />;
+      case 'artist-portfolio':
+        return <ArtistPortfolio setActivePage={setActivePage} artist={selectedArtist} />;
       case 'gallery':
         return <Gallery setActivePage={setActivePage} />;
       case 'events':

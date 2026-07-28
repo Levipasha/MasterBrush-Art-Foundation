@@ -22,11 +22,9 @@ const InstagramIcon = ({ size = 14 }) => (
   </svg>
 );
 
-export default function Members({ setActivePage, triggerToast }) {
+export default function Members({ setActivePage, setSelectedArtist, triggerToast }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeArtist, setActiveArtist] = useState(null);
-  const [zoomedArtImage, setZoomedArtImage] = useState(null);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -158,7 +156,11 @@ export default function Members({ setActivePage, triggerToast }) {
                         <button 
                           className="btn btn-primary" 
                           style={{ width: '100%', padding: '10px 0', fontSize: '0.85rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: 'auto' }}
-                          onClick={() => setActiveArtist(member)}
+                          onClick={() => {
+                            setSelectedArtist(member);
+                            setActivePage('artist-portfolio');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
                         >
                           Explore Art
                         </button>
@@ -171,123 +173,6 @@ export default function Members({ setActivePage, triggerToast }) {
           )}
         </div>
       </section>
-      {/* Artist Portfolio Modal */}
-      {activeArtist && (
-        <div 
-          className="lightbox" 
-          onClick={() => setActiveArtist(null)} 
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
-        >
-          <div 
-            className="lightbox-content" 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ maxWidth: '800px', width: '90%', maxHeight: '85vh', overflowY: 'auto', padding: '24px', borderRadius: '16px', background: 'white' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-soft)', paddingBottom: '12px' }}>
-              <div>
-                <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.6rem', color: 'var(--navy)', margin: 0 }}>
-                  {activeArtist.name}'s Portfolio
-                </h3>
-                {activeArtist.instagram && (
-                  <p style={{ fontSize: '0.85rem', color: 'var(--accent)', margin: '4px 0 0 0', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-                    <InstagramIcon size={14} /> @{activeArtist.instagram}
-                  </p>
-                )}
-              </div>
-              <button 
-                onClick={() => setActiveArtist(null)} 
-                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', borderRadius: '50%', color: 'var(--text-mid)', background: 'var(--cream)' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-mid)', lineHeight: '1.6', marginBottom: '24px', background: '#F8FAFC', padding: '16px', borderRadius: '12px' }}>
-              {activeArtist.info || 'Passionate artist creating inspiring handcrafted artworks at MasterBrush Art Foundation.'}
-            </p>
-
-            {activeArtist.artworks && activeArtist.artworks.filter(art => art.isApproved !== false).length > 0 ? (
-              <div>
-                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--navy)', marginBottom: '16px', fontWeight: 700 }}>
-                  Portfolio Artworks ({activeArtist.artworks.filter(art => art.isApproved !== false).length} Pieces)
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
-                  {activeArtist.artworks.filter(art => art.isApproved !== false).map((art, idx) => (
-                    <div key={art.id || idx} style={{ border: '1px solid var(--border-soft)', borderRadius: '12px', overflow: 'hidden', background: '#F8FAFC', display: 'flex', flexDirection: 'column', height: '100%' }}>
-                      <div style={{ height: '140px', overflow: 'hidden', background: '#F1F5F9' }}>
-                        <img 
-                          src={art.image} 
-                          alt={art.title} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in' }} 
-                          onClick={() => setZoomedArtImage(art.image)}
-                        />
-                      </div>
-                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                        <h5 style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--navy)', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{art.title}</h5>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', margin: '0 0 8px 0' }}>{art.category}</p>
-                        {art.description && <p style={{ fontSize: '0.78rem', color: 'var(--text-mid)', lineHeight: '1.4', margin: '0 0 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{art.description}</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <p style={{ textAlign: 'center', padding: '40px', color: 'var(--text-light)', fontStyle: 'italic' }}>
-                No portfolio artworks published by this artist yet.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-      {/* Zoomed Artwork Lightbox Modal */}
-      {zoomedArtImage && (
-        <div 
-          onClick={() => setZoomedArtImage(null)} 
-          style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            background: 'rgba(0,0,0,0.85)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            zIndex: 2000,
-            cursor: 'zoom-out'
-          }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ position: 'relative', maxWidth: '90%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-          >
-            <img 
-              src={zoomedArtImage} 
-              alt="Zoomed Artwork" 
-              style={{ maxWidth: '100%', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', cursor: 'default' }} 
-            />
-            <button 
-              onClick={() => setZoomedArtImage(null)} 
-              style={{ 
-                position: 'absolute', 
-                top: '-40px', 
-                right: '0', 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer', 
-                color: 'white', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '4px',
-                fontSize: '1rem',
-                fontWeight: 'bold'
-              }}
-            >
-              <X size={24} /> Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -57,6 +57,7 @@ export default function Footer({ setActivePage }) {
             <ul className="footer-links">
               <li><a onClick={() => handlePageChange('about')}>About Us</a></li>
               <li><a onClick={() => handlePageChange('members')}>Members</a></li>
+              <li><a onClick={() => handlePageChange('art')}>Art Expo</a></li>
               <li><a onClick={() => handlePageChange('gallery')}>Gallery</a></li>
               <li><a onClick={() => handlePageChange('events')}>Events</a></li>
               <li><a onClick={() => handlePageChange('shop')}>Shop</a></li>
