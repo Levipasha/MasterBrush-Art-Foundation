@@ -81,7 +81,7 @@ export default function Footer({ setActivePage }) {
             <h4>Contact Us</h4>
             <div className="footer-contact-item">
               <span className="footer-contact-icon"><Phone size={14} /></span>
-              <span>+91 98765 43210</span>
+              <span>+91 7995050022</span>
             </div>
             <div className="footer-contact-item">
               <span className="footer-contact-icon"><Mail size={14} /></span>
